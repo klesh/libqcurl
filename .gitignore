@@ -1,2 +1,4 @@
 *.user
 builds/
+node_modules/
+*.lock

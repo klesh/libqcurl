@@ -8,6 +8,7 @@ class Q_DECL_EXPORT QCurlRequest : public QObject
     Q_OBJECT
 
     QCurlData &_data;
+    QByteArray _body;
 
 public:
     QCurlRequest(QCurlData &data);
@@ -21,10 +22,10 @@ public:
     void setPrivateKeyPath(const QString &privateKeyPath);
     void setPublicKeyPath(const QString &publicKeyPath);
     void setVerbose(bool verbose);
-    void setBody(const QString &text);
     void setNoBody(bool nobody);
     void setFlowLocation(bool flow);
-//    void setBody(const QCurlFormData &form);
+    void setBody(const QString &text);
+    void setBody(const QCurlFormData &form);
 //    void setBody(const QCurlJson &json);
 //    void setBody(QCurlMultipart &parts);
 //    void setBody(QDataStream &stream);

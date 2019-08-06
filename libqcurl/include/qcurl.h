@@ -47,8 +47,9 @@ public:
 //    QCurlResponse put(const QUrl &url, QDataStream &stream, const QCurlHeaders &headers = QCurlHeadersEmpty);
 //    QCurlResponse put(const QUrl &url, const QCurlJson &json, const QCurlHeaders &headers = QCurlHeadersEmpty);
 
+    QCurlResponse post(const QUrl &url, const QCurlHeaders &headers = QCurlHeadersEmpty);
     QCurlResponse post(const QUrl &url, const QString &text, const QCurlHeaders &headers = QCurlHeadersEmpty);
-//    QCurlResponse post(const QUrl &url, const QCurlFormData &form, const QCurlHeaders &headers = QCurlHeadersEmpty);
+    QCurlResponse post(const QUrl &url, const QCurlFormData &form, const QCurlHeaders &headers = QCurlHeadersEmpty);
 //    QCurlResponse post(const QUrl &url, QCurlMultipart &parts, const QCurlHeaders &headers = QCurlHeadersEmpty);
 //    QCurlResponse post(const QUrl &url, QDataStream &stream, const QCurlHeaders &headers = QCurlHeadersEmpty);
 //    QCurlResponse post(const QUrl &url, const QCurlJson &json, const QCurlHeaders &headers = QCurlHeadersEmpty);

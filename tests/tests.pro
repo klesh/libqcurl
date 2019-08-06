@@ -6,9 +6,10 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-SOURCES +=  tst_headers.cpp
+SOURCES +=  \
+    tst_http.cpp
 
 DEPENDPATH += ../libqcurl
 INCLUDEPATH += ../libqcurl/include
 LIBS += -L/home/klesh/Projects/study/qcurl/builds/debug/libqcurl \
-        -lqcurl
+        -lqcurl -lcurl

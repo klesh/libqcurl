@@ -65,7 +65,20 @@ void QCurlRequest::setVerbose(bool verbose)
 
 void QCurlRequest::setBody(const QString &text)
 {
-    curl_easy_setopt(_data.curl, CURLOPT_POSTFIELDS, encode(text));
+    _body = text.toUtf8();
+    curl_easy_setopt(_data.curl, CURLOPT_POSTFIELDS, _body.constData());
+}
+
+void QCurlRequest::setBody(const QCurlFormData &form)
+{
+    _body.clear();
+    for (auto &pair : form) {
+        if (!_body.isEmpty()) _body.append('&');
+        _body.append(curl_easy_escape(_data.curl, pair.first.toUtf8().constData(), 0));
+        _body.append('=');
+        _body.append(curl_easy_escape(_data.curl, pair.second.toUtf8().constData(), 0));
+    }
+    curl_easy_setopt(_data.curl, CURLOPT_POSTFIELDS, _body.constData());
 }
 
 void QCurlRequest::setNoBody(bool nobody)

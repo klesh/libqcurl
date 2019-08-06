@@ -42,11 +42,24 @@ QCurlResponse QCurlSession::put(const QUrl &url, const QString &text, const QCur
     return req.perform("PUT", url);
 }
 
+QCurlResponse QCurlSession::post(const QUrl &url, const QMap<QString, QString> &headers)
+{
+    QCurlRequest req = request(headers);
+    return req.perform("POST", url);
+}
+
 QCurlResponse QCurlSession::post(const QUrl &url, const QString &text, const QCurlHeaders &headers)
 {
 
     QCurlRequest req = request(headers);
     req.setBody(text);
+    return req.perform("POST", url);
+}
+
+QCurlResponse QCurlSession::post(const QUrl &url, const QCurlFormData &form, const QMap<QString, QString> &headers)
+{
+    QCurlRequest req = request(headers);
+    req.setBody(form);
     return req.perform("POST", url);
 }
 
