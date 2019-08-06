@@ -53,6 +53,14 @@ QString QCurlResponse::responseText()
     return d->responseText;
 }
 
+QJsonDocument QCurlResponse::responseJson()
+{
+    if (d->responseJson.isNull() && !d->body.isEmpty()) {
+        d->responseJson = QJsonDocument::fromJson(d->body);
+    }
+    return d->responseJson;
+}
+
 QString QCurlResponse::getHeader(const QString &name)
 {
     auto lowerName = name.toLower();

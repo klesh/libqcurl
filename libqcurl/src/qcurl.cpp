@@ -63,6 +63,13 @@ QCurlResponse QCurlSession::post(const QUrl &url, const QCurlFormData &form, con
     return req.perform("POST", url);
 }
 
+QCurlResponse QCurlSession::post(const QUrl &url, const QJsonDocument &json, const QMap<QString, QString> &headers)
+{
+    QCurlRequest req = request(headers);
+    req.setBody(json);
+    return req.perform("POST", url);
+}
+
 QCurlResponse QCurlSession::dele(const QUrl &url, const QCurlHeaders &headers)
 {
     QCurlRequest req = request(headers);

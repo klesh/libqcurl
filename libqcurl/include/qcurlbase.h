@@ -3,13 +3,12 @@
 
 #include <curl/curl.h>
 #include <QtCore>
-#include <QtDebug>
 
 #define QCurlHeaders QMap<QString, QString>
 #define QCurlHeadersEmpty QMap<QString, QString>()
 #define QCurlFormData QList<QPair<QString, QString>>
 #define QCurlMultipart QList<QPair<QString, QVariant>>
-#define QCurlJson QVariantMap
+#define QCurlJson QJsonDocument
 
 class QCurlSession;
 class QCurlRequest;

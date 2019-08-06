@@ -4,9 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core network
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT       += core
 
 TARGET = qcurl
 TEMPLATE = lib
@@ -15,14 +13,14 @@ TEMPLATE = lib
 # any feature of Qt which has been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS  CURL_STATICLIB
+DEFINES += QT_DEPRECATED_WARNINGS
 
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-CONFIG += c++11 staticlib
+CONFIG += c++11
 
 INCLUDEPATH += include
 
@@ -30,7 +28,7 @@ HEADERS += \
     include/qcurl.h \
     include/qcurlbase.h \
     include/qcurlrequest.h \
-    include/qcurlresponse.h \
+    include/qcurlresponse.h
 
 SOURCES += \
         src/qcurl.cpp \
@@ -38,17 +36,11 @@ SOURCES += \
         src/qcurlresponse.cpp
 
 win32 {
-    INCLUDEPATH += D:/Projects/curl/curl-7.65.3/builds/libcurl-vc-x86-release-static-ssh2-dll-ipv6-sspi-winssl/include
-    LIBS += -LD:/Projects/curl/curl-7.65.3/builds/libcurl-vc-x86-release-static-ssh2-dll-ipv6-sspi-winssl/lib \
-            -LD:/Projects/curl/deps/lib \
-            -lws2_32 -lAdvapi32 -lCrypt32 -lWldap32 -lNormaliz -lUser32 -llibcurl_a -llibssh2
+    INCLUDEPATH += ../deps/win32/include
+    LIBS += -L$$PWD/../deps/win32/lib -llibcurl \
+            -lws2_32 -lAdvapi32 -lCrypt32 -lWldap32 -lNormaliz -lUser32
 }
 
 unix {
     LIBS += -lcurl
 }
-
-# Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target

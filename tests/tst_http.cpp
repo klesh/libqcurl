@@ -14,6 +14,7 @@ public:
 
 private slots:
     void testSimpleGet();
+    void testHttps();
     void testNotfound();
     void testPost();
 };
@@ -34,6 +35,13 @@ void Http::testSimpleGet()
     auto res = curl.get(QUrl("http://localhost:7880"));
     QCOMPARE(res.statusCode(), 200);
     QCOMPARE(res.responseText(), "hello world");
+}
+
+void Http::testHttps()
+{
+    QCurlSession curl;
+    auto res = curl.get(QUrl("https://example.com"));
+    QCOMPARE(res.statusCode(), 200);
 }
 
 void Http::testNotfound()
@@ -57,6 +65,19 @@ void Http::testPost()
     form.append({"hello", "world"});
     auto res3 = curl.post(QUrl("http://localhost:7880/form"), form);
     QCOMPARE(res3.responseText(), "world");
+
+    QJsonObject postRoot;
+    postRoot.insert("username", "foobar");
+    postRoot.insert("password", "helloworld");
+    QCurlJson postJson(postRoot);
+    auto res4 = curl.post(QUrl("http://localhost:7880/json"), postJson);
+    auto resJson = res4.responseJson();
+    QCOMPARE(res4.statusCode(), 200);
+    auto root = resJson.object();
+    QCOMPARE(root["code"].toString(), "SUCCESS");
+    auto data = root["data"].toObject();
+    QCOMPARE(data["username"].toString(), "foobar");
+    QCOMPARE(data["password"].toString(), "helloworld");
 }
 
 QTEST_APPLESS_MAIN(Http)

@@ -26,7 +26,7 @@ public:
     void setFlowLocation(bool flow);
     void setBody(const QString &text);
     void setBody(const QCurlFormData &form);
-//    void setBody(const QCurlJson &json);
+    void setBody(const QCurlJson &json);
 //    void setBody(QCurlMultipart &parts);
 //    void setBody(QDataStream &stream);
 

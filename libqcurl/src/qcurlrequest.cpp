@@ -11,11 +11,6 @@ QCurlRequest::QCurlRequest(QCurlData &data)
     _data.headers = nullptr;
 }
 
-QCurlRequest::QCurlRequest(const QCurlRequest &other)
-    : _data(other._data)
-{
-}
-
 void QCurlRequest::setHeader(const QString &name, const QString &value)
 {
     _data.headers = curl_slist_append(_data.headers, encode(QString("%1: %2").arg(name).arg(value)));
@@ -78,6 +73,13 @@ void QCurlRequest::setBody(const QCurlFormData &form)
         _body.append('=');
         _body.append(curl_easy_escape(_data.curl, pair.second.toUtf8().constData(), 0));
     }
+    curl_easy_setopt(_data.curl, CURLOPT_POSTFIELDS, _body.constData());
+}
+
+void QCurlRequest::setBody(const QCurlJson &json)
+{
+    _body = json.toJson();
+    setHeader("Content-Type", "application/json; charset=utf-8");
     curl_easy_setopt(_data.curl, CURLOPT_POSTFIELDS, _body.constData());
 }
 

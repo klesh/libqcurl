@@ -2,3 +2,6 @@
 builds/
 node_modules/
 *.lock
+debug/
+release/
+deps/

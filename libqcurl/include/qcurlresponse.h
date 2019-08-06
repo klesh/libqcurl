@@ -3,7 +3,7 @@
 
 #include "qcurlbase.h"
 
-struct Q_DECL_EXPORT QCurlResponseData : public QSharedData
+struct QCurlResponseData : public QSharedData
 {
     QCurlData &data;
     CURLcode code;
@@ -13,13 +13,14 @@ struct Q_DECL_EXPORT QCurlResponseData : public QSharedData
     QString status;
     QByteArray body;
     QString responseText;
+    QJsonDocument responseJson;
 
     QCurlResponseData(QCurlData &d) : data(d) {}
     ~QCurlResponseData() { }
     // skip the copy constructor since this should never be deep copied
 };
 
-class QCurlResponse : public QObject
+class Q_DECL_EXPORT QCurlResponse : public QObject
 {
     Q_OBJECT
 
@@ -30,13 +31,14 @@ class QCurlResponse : public QObject
 
 public:
     QCurlResponse(QCurlData &data);
-    QCurlResponse(const QCurlResponse &other) : d(other.d) {}
+    QCurlResponse(const QCurlResponse &other) : QObject(), d(other.d) {}
     CURLcode code() { return d->code; }
     QString message() { return d->message; }
     QCurlHeaders &headers() { return d->headers; }
     uint statusCode() { return d->statusCode; }
     QString status() { return d->status; }
     QString responseText();
+    QCurlJson responseJson();
     QString getHeader(const QString &name);
 };
 
