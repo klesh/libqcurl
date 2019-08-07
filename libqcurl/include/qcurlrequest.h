@@ -19,14 +19,13 @@ public:
     void setHeaders(const QCurlHeaders &headers);
     void setUserAgent(const QString &userAgent);
     void setProxyUrl(const QUrl &proxyUrl);
-    void setUserName(const QString &userName);
-    void setPassword(const QString &password);
     void setPrivateKeyPath(const QString &privateKeyPath);
     void setPublicKeyPath(const QString &publicKeyPath);
+    void setKeyPassword(const QString &keyPassword);
     void setVerbose(bool verbose);
     void setNoBody(bool nobody);
     void setFlowLocation(bool flow);
-    void setBody(const QString &text);
+    void setBody(const QCurlBytes &bytes);
     void setBody(const QCurlFormData &form);
     void setBody(const QCurlJson &json);
     void setBody(QCurlMultipart &parts);

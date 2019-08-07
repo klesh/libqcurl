@@ -66,16 +66,6 @@ void QCurlRequest::setProxyUrl(const QUrl &proxyUrl)
     curl_easy_setopt(_data.curl, CURLOPT_PROXY, encode(proxyUrl.toString()));
 }
 
-void QCurlRequest::setUserName(const QString &userName)
-{
-    curl_easy_setopt(_data.curl, CURLOPT_USERNAME, encode(userName));
-}
-
-void QCurlRequest::setPassword(const QString &password)
-{
-    curl_easy_setopt(_data.curl, CURLOPT_PASSWORD, encode(password));
-}
-
 void QCurlRequest::setPrivateKeyPath(const QString &privateKeyPath)
 {
     curl_easy_setopt(_data.curl, CURLOPT_SSH_PRIVATE_KEYFILE, encode(privateKeyPath));
@@ -86,14 +76,19 @@ void QCurlRequest::setPublicKeyPath(const QString &publicKeyPath)
     curl_easy_setopt(_data.curl, CURLOPT_SSH_PUBLIC_KEYFILE, encode(publicKeyPath));
 }
 
+void QCurlRequest::setKeyPassword(const QString &keyPassword)
+{
+    curl_easy_setopt(_data.curl, CURLOPT_KEYPASSWD, encode(keyPassword));
+}
+
 void QCurlRequest::setVerbose(bool verbose)
 {
     curl_easy_setopt(_data.curl, CURLOPT_VERBOSE, verbose);
 }
 
-void QCurlRequest::setBody(const QString &text)
+void QCurlRequest::setBody(const QCurlBytes &bytes)
 {
-    _data.body = text.toUtf8();
+    _data.body = bytes;
     curl_easy_setopt(_data.curl, CURLOPT_POSTFIELDS, _data.body.constData());
 }
 
@@ -167,11 +162,17 @@ void QCurlRequest::setFlowLocation(bool flow)
 QCurlResponse QCurlRequest::perform(const QString &method, const QUrl &url)
 {
     QString METHOD = method.toUpper();
-    if (METHOD != "GET" && url.scheme().toLower().startsWith("http")) {
-        curl_easy_setopt(_data.curl, CURLOPT_CUSTOMREQUEST, encode(METHOD));
+    const QUrl finalUrl = url.isRelative() ? _data.baseUrl.resolved(url) : url;
+    if (METHOD == "HEAD") {
+        curl_easy_setopt(_data.curl, CURLOPT_NOBODY, 1L);
+        curl_easy_setopt(_data.curl, CURLOPT_HEADER, 1L);
+    } else {
+        if (METHOD != "GET" && finalUrl.scheme().toLower().startsWith("http")) {
+            curl_easy_setopt(_data.curl, CURLOPT_CUSTOMREQUEST, encode(METHOD));
+        }
     }
     if (_data.headers) curl_easy_setopt(_data.curl, CURLOPT_HTTPHEADER, _data.headers);
-    curl_easy_setopt(_data.curl, CURLOPT_URL, encode(url.toString()));
+    curl_easy_setopt(_data.curl, CURLOPT_URL, encode(finalUrl.toString()));
     QCurlResponse res(_data);
     _data.counter--;
 

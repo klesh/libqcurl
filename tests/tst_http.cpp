@@ -33,43 +33,38 @@ Http::~Http()
 
 void Http::testSimpleGet()
 {
-    QCurlSession curl;
-    auto res = curl.get(QUrl("http://localhost:7880"));
+    auto res = QCurl::get(QUrl("http://localhost:7880"));
     QCOMPARE(res.statusCode(), 200);
     QCOMPARE(res.responseText(), "hello world");
 }
 
 void Http::testHttps()
 {
-    QCurlSession curl;
-    auto res = curl.get(QUrl("https://example.com"));
+    auto res = QCurl::get(QUrl("https://example.com"));
     QCOMPARE(res.statusCode(), 200);
 }
 
 void Http::testNotfound()
 {
-    QCurlSession curl;
-    auto res = curl.get(QUrl("http://localhost:7880/notfound"));
+    auto res = QCurl::get(QUrl("http://localhost:7880/notfound"));
     QCOMPARE(res.statusCode(), 404);
 }
 
 void Http::testPost()
 {
-    QCurlSession curl;
-
     // post empty body
-    auto res = curl.post(QUrl("http://localhost:7880/echo"));
+    auto res = QCurl::post(QUrl("http://localhost:7880/echo"));
     QCOMPARE(res.statusCode(), 200);
 
     // post plain text
-    auto res2 = curl.post(QUrl("http://localhost:7880/echo"), "foobar");
+    auto res2 = QCurl::post(QUrl("http://localhost:7880/echo"), "foobar");
     QCOMPARE(res2.statusCode(), 200);
     QCOMPARE(res2.responseText(), "foobar");
 
     // post ordinary form
     QCurlFormData form;
     form.append({"hello", "world"});
-    auto res3 = curl.post(QUrl("http://localhost:7880/form"), form);
+    auto res3 = QCurl::post(QUrl("http://localhost:7880/form"), form);
     QCOMPARE(res3.responseText(), "world");
 
     // post and receive json
@@ -77,7 +72,7 @@ void Http::testPost()
     postRoot.insert("username", "foobar");
     postRoot.insert("password", "helloworld");
     QCurlJson postJson(postRoot);
-    auto res4 = curl.post(QUrl("http://localhost:7880/json"), postJson);
+    auto res4 = QCurl::post(QUrl("http://localhost:7880/json"), postJson);
     auto resJson = res4.responseJson();
     QCOMPARE(res4.statusCode(), 200);
     auto root = resJson.object();
@@ -95,13 +90,13 @@ void Http::testPost()
     buffer.open(QIODevice::ReadOnly);
     buffer.setProperty("filename", "plaintextfile.txt");
     parts.append({"file", QVariant::fromValue(&buffer)});
-    auto res5 = curl.post(QUrl("http://localhost:7880/parts"), parts);
+    auto res5 = QCurl::post(QUrl("http://localhost:7880/parts"), parts);
     QCOMPARE(res5.statusCode(), 200);
     QCOMPARE(res5.responseText(), "plaintextfile.txt\nhello world");
 
     QBuffer buffer2(&bytes);
     buffer2.open(QIODevice::ReadOnly);
-    auto res6 = curl.post(QUrl("http://localhost:7880/raw"), buffer2);
+    auto res6 = QCurl::post(QUrl("http://localhost:7880/raw"), buffer2);
     QCOMPARE(res6.statusCode(), 200);
     QCOMPARE(res6.responseText(), "hello world");
 
@@ -110,12 +105,11 @@ void Http::testPost()
 
 void Http::testPutAndDelete()
 {
-    QCurlSession curl;
-    auto res = curl.put(QUrl("http://localhost:7880/method"));
+    auto res = QCurl::put(QUrl("http://localhost:7880/method"));
     QCOMPARE(res.statusCode(), 200);
     QCOMPARE(res.responseText(), "PUT");
 
-    auto res2 = curl.dele(QUrl("http://localhost:7880/method"));
+    auto res2 = QCurl::dele(QUrl("http://localhost:7880/method"));
     QCOMPARE(res2.statusCode(), 200);
     QCOMPARE(res2.responseText(), "DELETE");
 }
