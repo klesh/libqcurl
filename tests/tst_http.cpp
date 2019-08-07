@@ -17,6 +17,8 @@ private slots:
     void testHttps();
     void testNotfound();
     void testPost();
+    void testPutAndDelete();
+    void testQVariant();
 };
 
 Http::Http()
@@ -54,18 +56,23 @@ void Http::testNotfound()
 void Http::testPost()
 {
     QCurlSession curl;
+
+    // post empty body
     auto res = curl.post(QUrl("http://localhost:7880/echo"));
     QCOMPARE(res.statusCode(), 200);
 
+    // post plain text
     auto res2 = curl.post(QUrl("http://localhost:7880/echo"), "foobar");
     QCOMPARE(res2.statusCode(), 200);
     QCOMPARE(res2.responseText(), "foobar");
 
+    // post ordinary form
     QCurlFormData form;
     form.append({"hello", "world"});
     auto res3 = curl.post(QUrl("http://localhost:7880/form"), form);
     QCOMPARE(res3.responseText(), "world");
 
+    // post and receive json
     QJsonObject postRoot;
     postRoot.insert("username", "foobar");
     postRoot.insert("password", "helloworld");
@@ -78,6 +85,53 @@ void Http::testPost()
     auto data = root["data"].toObject();
     QCOMPARE(data["username"].toString(), "foobar");
     QCOMPARE(data["password"].toString(), "helloworld");
+
+    // upload file by multipart
+    QCurlMultipart parts;
+    parts.append({"filename", "plaintextfile.txt"});
+
+    QByteArray bytes = QString("hello world").toUtf8();
+    QBuffer buffer(&bytes);
+    buffer.open(QIODevice::ReadOnly);
+    buffer.setProperty("filename", "plaintextfile.txt");
+    parts.append({"file", QVariant::fromValue(&buffer)});
+    auto res5 = curl.post(QUrl("http://localhost:7880/parts"), parts);
+    QCOMPARE(res5.statusCode(), 200);
+    QCOMPARE(res5.responseText(), "plaintextfile.txt\nhello world");
+
+    QBuffer buffer2(&bytes);
+    buffer2.open(QIODevice::ReadOnly);
+    auto res6 = curl.post(QUrl("http://localhost:7880/raw"), buffer2);
+    QCOMPARE(res6.statusCode(), 200);
+    QCOMPARE(res6.responseText(), "hello world");
+
+
+}
+
+void Http::testPutAndDelete()
+{
+    QCurlSession curl;
+    auto res = curl.put(QUrl("http://localhost:7880/method"));
+    QCOMPARE(res.statusCode(), 200);
+    QCOMPARE(res.responseText(), "PUT");
+
+    auto res2 = curl.dele(QUrl("http://localhost:7880/method"));
+    QCOMPARE(res2.statusCode(), 200);
+    QCOMPARE(res2.responseText(), "DELETE");
+}
+
+void Http::testQVariant()
+{
+    QByteArray bytes = QString("hello world").toUtf8();
+    QBuffer buffer(&bytes);
+
+    QVariant var = QVariant::fromValue(&buffer);
+
+    QVERIFY(var.canConvert<QIODevice*>());
+
+    QVariant var2 = QString("foobar");
+
+    QCOMPARE(var2.canConvert<QIODevice*>(), false);
 }
 
 QTEST_APPLESS_MAIN(Http)

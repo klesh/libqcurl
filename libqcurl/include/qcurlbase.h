@@ -18,6 +18,8 @@ struct QCurlData {
     CURL *curl = nullptr;
     struct curl_slist *cookies = nullptr;
     struct curl_slist *headers = nullptr;
+    QByteArray body; // for small text base body
+    curl_mime *form = nullptr; // for big multipart form
     int counter = 0; // make sure only one request at a time
 };
 

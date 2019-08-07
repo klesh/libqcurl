@@ -35,13 +35,6 @@ QCurlResponse QCurlSession::get(const QUrl &url, const QCurlHeaders &headers)
     return req.perform("GET", url);
 }
 
-QCurlResponse QCurlSession::put(const QUrl &url, const QString &text, const QCurlHeaders &headers)
-{
-    QCurlRequest req = request(headers);
-    req.setBody(text);
-    return req.perform("PUT", url);
-}
-
 QCurlResponse QCurlSession::post(const QUrl &url, const QMap<QString, QString> &headers)
 {
     QCurlRequest req = request(headers);
@@ -70,9 +63,64 @@ QCurlResponse QCurlSession::post(const QUrl &url, const QJsonDocument &json, con
     return req.perform("POST", url);
 }
 
+QCurlResponse QCurlSession::post(const QUrl &url, QCurlMultipart &parts, const QMap<QString, QString> &headers)
+{
+    QCurlRequest req = request(headers);
+    req.setBody(parts);
+    return req.perform("POST", url);
+}
+
+QCurlResponse QCurlSession::post(const QUrl &url, QIODevice &stream, const QMap<QString, QString> &headers)
+{
+    QCurlRequest req = request(headers);
+    req.setBody(stream);
+    return req.perform("POST", url);
+}
+
+QCurlResponse QCurlSession::put(const QUrl &url, const QMap<QString, QString> &headers)
+{
+    QCurlRequest req = request(headers);
+    return req.perform("PUT", url);
+}
+
+QCurlResponse QCurlSession::put(const QUrl &url, const QString &text, const QCurlHeaders &headers)
+{
+
+    QCurlRequest req = request(headers);
+    req.setBody(text);
+    return req.perform("PUT", url);
+}
+
+QCurlResponse QCurlSession::put(const QUrl &url, const QCurlFormData &form, const QMap<QString, QString> &headers)
+{
+    QCurlRequest req = request(headers);
+    req.setBody(form);
+    return req.perform("PUT", url);
+}
+
+QCurlResponse QCurlSession::put(const QUrl &url, const QJsonDocument &json, const QMap<QString, QString> &headers)
+{
+    QCurlRequest req = request(headers);
+    req.setBody(json);
+    return req.perform("PUT", url);
+}
+
+QCurlResponse QCurlSession::put(const QUrl &url, QCurlMultipart &parts, const QMap<QString, QString> &headers)
+{
+    QCurlRequest req = request(headers);
+    req.setBody(parts);
+    return req.perform("PUT", url);
+}
+
+QCurlResponse QCurlSession::put(const QUrl &url, QIODevice &stream, const QMap<QString, QString> &headers)
+{
+    QCurlRequest req = request(headers);
+    req.setBody(stream);
+    return req.perform("PUT", url);
+}
+
 QCurlResponse QCurlSession::dele(const QUrl &url, const QCurlHeaders &headers)
 {
     QCurlRequest req = request(headers);
     return req.perform("DELETE", url);
 }
-

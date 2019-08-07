@@ -8,7 +8,9 @@ class Q_DECL_EXPORT QCurlRequest : public QObject
     Q_OBJECT
 
     QCurlData &_data;
-    QByteArray _body;
+    static size_t readCallback(char *buffer, size_t size, size_t nitems, void *arg);
+    static int seekCallback(void *arg, curl_off_t offset, int origin);
+    static void freeCallback (void *arg);
 
 public:
     QCurlRequest(QCurlData &data);
@@ -27,8 +29,8 @@ public:
     void setBody(const QString &text);
     void setBody(const QCurlFormData &form);
     void setBody(const QCurlJson &json);
-//    void setBody(QCurlMultipart &parts);
-//    void setBody(QDataStream &stream);
+    void setBody(QCurlMultipart &parts);
+    void setBody(QIODevice &stream);
 
     QCurlResponse perform(const QString &method, const QUrl &url);
 };

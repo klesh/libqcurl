@@ -14,7 +14,7 @@ INCLUDEPATH += ../libqcurl/include \
                ../deps/win32/include
 
 unix {
-    LIBS += -L../builds/debug/libqcurl \
+    LIBS += -L$$PWD/../builds/debug/libqcurl \
             -lqcurl -lcurl
 }
 

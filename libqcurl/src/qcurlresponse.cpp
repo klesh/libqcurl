@@ -44,6 +44,11 @@ QCurlResponse::QCurlResponse(QCurlData &data)
     d->code = curl_easy_perform(d->data.curl);
 }
 
+QCurlResponse::QCurlResponse(const QCurlResponse &other) : QObject(), d(other.d)
+{
+
+}
+
 
 QString QCurlResponse::responseText()
 {

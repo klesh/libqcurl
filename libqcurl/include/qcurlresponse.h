@@ -31,7 +31,7 @@ class Q_DECL_EXPORT QCurlResponse : public QObject
 
 public:
     QCurlResponse(QCurlData &data);
-    QCurlResponse(const QCurlResponse &other) : QObject(), d(other.d) {}
+    QCurlResponse(const QCurlResponse &other);
     CURLcode code() { return d->code; }
     QString message() { return d->message; }
     QCurlHeaders &headers() { return d->headers; }
