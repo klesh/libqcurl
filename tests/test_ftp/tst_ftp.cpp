@@ -53,7 +53,7 @@ void Ftp::testWhole()
     req.setRange("0-0");
     auto res = req.perform("GET", QUrl("notfound.txt"));
     qDebug() << "notfound.txt response" << res.responseText() << "code" << res.code();
-    QCOMPARE(res.code(), CURLE_REMOTE_FILE_NOT_FOUND);
+    QCOMPARE(res.code(), CURLE_FTP_COULDNT_RETR_FILE);
 
     qDebug() << "start range hello.txt";
     auto req1 = curl.request();
