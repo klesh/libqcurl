@@ -149,6 +149,11 @@ void QCurlRequest::setBody(QIODevice &stream)
     curl_easy_setopt(_data.curl, CURLOPT_INFILESIZE_LARGE, static_cast<curl_off_t>(stream.size()));
 }
 
+void QCurlRequest::setRange(QString range)
+{
+    curl_easy_setopt(_data.curl, CURLOPT_RANGE, encode(range));
+}
+
 void QCurlRequest::setNoBody(bool nobody)
 {
     curl_easy_setopt(_data.curl, CURLOPT_NOBODY, nobody);
@@ -173,7 +178,7 @@ QCurlResponse QCurlRequest::perform(const QString &method, const QUrl &url)
     }
     if (_data.headers) curl_easy_setopt(_data.curl, CURLOPT_HTTPHEADER, _data.headers);
     curl_easy_setopt(_data.curl, CURLOPT_URL, encode(finalUrl.toString()));
-    QCurlResponse res(_data);
+    QCurlResponse res(_data, finalUrl);
     _data.counter--;
 
     // release resources

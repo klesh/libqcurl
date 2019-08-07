@@ -16,21 +16,26 @@ size_t QCurlResponse::headerCallback(char *buffer, size_t size, size_t nitems, v
     bytes.append(buffer, l);
     QString text(bytes);
     text = text.trimmed();
-    if (text.contains(':')) {
-        auto tmp = text.split(':');
-        res->d->headers.insert(tmp[0], tmp[1].trimmed());
-    } else if (!text.isEmpty()) {
-        int fs = text.indexOf(' ');
-        int ss = text.indexOf(' ', fs + 1);
-        QString statusCode = text.mid(fs + 1, ss - fs - 1);
-        res->d->statusCode = statusCode.toUInt();
-        res->d->status = text.mid(ss + 1).trimmed();
+    auto scheme = res->d->url.scheme();
+    if (scheme.startsWith("http")) {
+        if (text.contains(':')) {
+            auto tmp = text.split(':');
+            res->d->headers.insert(tmp[0], tmp[1].trimmed());
+        } else if (!text.isEmpty()) {
+            int fs = text.indexOf(' ');
+            int ss = text.indexOf(' ', fs + 1);
+            QString statusCode = text.mid(fs + 1, ss - fs - 1);
+            res->d->statusCode = statusCode.toLong();
+            res->d->status = text.mid(ss + 1).trimmed();
+        }
+    } else if (scheme.startsWith("ftp")) {
+        qDebug() << "** header" << text;
     }
     return static_cast<size_t>(l);
 }
 
-QCurlResponse::QCurlResponse(QCurlData &data)
-    : d(new QCurlResponseData(data))
+QCurlResponse::QCurlResponse(QCurlData &data, const QUrl &url)
+    : d(new QCurlResponseData(data, url))
 {
     // actually perform curl request
     curl_easy_setopt(d->data.curl, CURLOPT_HEADERFUNCTION, headerCallback);
@@ -42,6 +47,10 @@ QCurlResponse::QCurlResponse(QCurlData &data)
     curl_easy_setopt(d->data.curl, CURLOPT_WRITEDATA, &buffer);
 
     d->code = curl_easy_perform(d->data.curl);
+
+    if (d->code == CURLE_OK) {
+        curl_easy_getinfo(d->data.curl, CURLINFO_RESPONSE_CODE, &d->statusCode);
+    }
 }
 
 QCurlResponse::QCurlResponse(const QCurlResponse &other) : QObject(), d(other.d)

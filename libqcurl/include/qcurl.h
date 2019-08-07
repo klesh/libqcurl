@@ -41,6 +41,7 @@ public:
     QCurlResponse post(const QString &path, const QCurlHeaders &headers = QCurlHeadersEmpty);
     QCurlResponse put(const QString &path, const QCurlHeaders &headers = QCurlHeadersEmpty);
     QCurlResponse dele(const QString &path = QString(), const QCurlHeaders &headers = QCurlHeadersEmpty);
+    QCurlResponse head(const QString &path = QString(), const QCurlHeaders &headers = QCurlHeadersEmpty);
 
     QCurlResponse post(const QString &path, const QCurlBytes &bytes, const QCurlHeaders &headers = QCurlHeadersEmpty);
     QCurlResponse post(const QString &path, const QCurlFormData &form, const QCurlHeaders &headers = QCurlHeadersEmpty);
@@ -63,6 +64,8 @@ public:
     { return put(QString(), headers); }
     QCurlResponse dele(const QCurlHeaders &headers = QCurlHeadersEmpty)
     { return dele(QString(), headers); }
+    QCurlResponse head(const QCurlHeaders &headers = QCurlHeadersEmpty)
+    { return head(QString(), headers); }
 
     QCurlResponse post(const QCurlBytes &bytes, const QCurlHeaders &headers = QCurlHeadersEmpty)
     { return post(QString(), bytes, headers); }
@@ -91,6 +94,7 @@ public:
     static QCurlResponse post(const QUrl &url, const QCurlHeaders &headers = QCurlHeadersEmpty);
     static QCurlResponse put(const QUrl &url, const QCurlHeaders &headers = QCurlHeadersEmpty);
     static QCurlResponse dele(const QUrl &url, const QCurlHeaders &headers = QCurlHeadersEmpty);
+    static QCurlResponse head(const QUrl &url, const QCurlHeaders &headers = QCurlHeadersEmpty);
 
     static QCurlResponse post(const QUrl &url, const QCurlBytes &bytes, const QCurlHeaders &headers = QCurlHeadersEmpty);
     static QCurlResponse post(const QUrl &url, const QCurlFormData &form, const QCurlHeaders &headers = QCurlHeadersEmpty);

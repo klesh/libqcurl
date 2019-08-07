@@ -30,8 +30,9 @@ public:
     void setBody(const QCurlJson &json);
     void setBody(QCurlMultipart &parts);
     void setBody(QIODevice &stream);
+    void setRange(QString range);
 
-    QCurlResponse perform(const QString &method, const QUrl &url);
+    QCurlResponse perform(const QString &method, const QUrl &url = QUrl());
 };
 
 #endif // QCURLREQUEST_H

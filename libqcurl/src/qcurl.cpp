@@ -49,6 +49,12 @@ QCurlResponse QCurl::dele(const QString &path, const QCurlHeaders &headers)
     return req.perform("DELETE", path);
 }
 
+QCurlResponse QCurl::head(const QString &path, const QMap<QString, QString> &headers)
+{
+    QCurlRequest req = request(headers);
+    return req.perform("HEAD", path);
+}
+
 
 QCurlResponse QCurl::post(const QString &path, const QCurlBytes &bytes, const QCurlHeaders &headers)
 {
@@ -135,6 +141,12 @@ QCurlResponse QCurl::dele(const QUrl &url, const QCurlHeaders &headers)
 {
     QCurl curl(url);
     return curl.dele(headers);
+}
+
+QCurlResponse QCurl::head(const QUrl &url, const QMap<QString, QString> &headers)
+{
+    QCurl curl(url);
+    return curl.head(headers);
 }
 
 
