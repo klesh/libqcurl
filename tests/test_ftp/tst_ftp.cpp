@@ -14,7 +14,8 @@ public:
 
 private slots:
     void testSimpleGet();
-    void testWhole();
+    void testExists();
+    void testPutAndDelete();
 };
 
 Ftp::Ftp()
@@ -30,36 +31,31 @@ Ftp::~Ftp()
 void Ftp::testSimpleGet()
 {
     auto res = QCurl::get(QUrl("ftp://ftpuser:ftppass@localhost:7881/hello.txt"));
-//    QCOMPARE(res.statusCode(), 200);
     QCOMPARE(res.responseText(), "helloworld");
 }
 
-void Ftp::testWhole()
+void Ftp::testExists()
 {
     QCurl curl(QUrl("ftp://ftpuser:ftppass@localhost:7881/"));
-    auto head1 = curl.head("hello.txt");
-    qDebug() << "head1 response" << head1.responseText() << "code" << head1.code();
+    QCOMPARE(curl.exists("hello.txt"), 1);
+    QCOMPARE(curl.exists("notfound.txt"), 0);
+}
 
-    qDebug() << "start head 2";
-    auto head2 = curl.head("notfound.txt");
-    qDebug() << "head2 response" << head2.responseText() << "code" << head2.code();
+void Ftp::testPutAndDelete()
+{
+    QCurl curl(QUrl("ftp://ftpuser:ftppass@localhost:7881/"));
+    QByteArray bytes = QString("this is a test").toUtf8();
+    QBuffer buffer(&bytes);
+    buffer.open(QIODevice::ReadOnly);
+    auto putRes = curl.put("foobar.txt", buffer);
+    QCOMPARE(putRes.code(), CURLE_OK);
 
-    qDebug() << "start head 3";
-    auto head3 = curl.get("hello.txt");
-    qDebug() << "head3 response" << head3.responseText() << "code" << head3.code();
+    auto getRes = curl.get("foobar.txt");
+    QCOMPARE(getRes.responseText(), "this is a test");
 
-    qDebug() << "start range notfound";
-    auto req = curl.request();
-    req.setRange("0-0");
-    auto res = req.perform("GET", QUrl("notfound.txt"));
-    qDebug() << "notfound.txt response" << res.responseText() << "code" << res.code();
-    QCOMPARE(res.code(), CURLE_FTP_COULDNT_RETR_FILE);
+    auto delRes = curl.dele("foobar.txt");
 
-    qDebug() << "start range hello.txt";
-    auto req1 = curl.request();
-    req1.setRange("0-0");
-    auto res1 = req1.perform("GET", QUrl("hello.txt"));
-    qDebug() << "hello.txt response" << res1.responseText() << "code" << res1.code();
+    QCOMPARE(curl.exists("foobar.txt"), 0);
 }
 
 

@@ -56,6 +56,13 @@ void QCurlRequest::setHeaders(const QMap<QString, QString> &headers)
     }
 }
 
+void QCurlRequest::setQuote(const QStringList quote)
+{
+    for (const auto &line : quote) {
+        _data.quote = curl_slist_append(_data.quote, encode(line));
+    }
+}
+
 void QCurlRequest::setUserAgent(const QString &userAgent)
 {
     curl_easy_setopt(_data.curl, CURLOPT_USERAGENT, encode(userAgent));
@@ -164,16 +171,30 @@ void QCurlRequest::setFlowLocation(bool flow)
     curl_easy_setopt(_data.curl, CURLOPT_FOLLOWLOCATION, flow);
 }
 
-QCurlResponse QCurlRequest::perform(const QString &method, const QUrl &url)
+QCurlResponse QCurlRequest::perform(const QString &method, const QString &path)
 {
+    assert(!_isPerformed);
+    _isPerformed = true;
+
+    QUrl url(path);
+    assert(url.isRelative());
+
     QString METHOD = method.toUpper();
-    const QUrl finalUrl = url.isRelative() ? _data.baseUrl.resolved(url) : url;
+    const QUrl finalUrl = _data.baseUrl.resolved(url);
     if (METHOD == "HEAD") {
         curl_easy_setopt(_data.curl, CURLOPT_NOBODY, 1L);
         curl_easy_setopt(_data.curl, CURLOPT_HEADER, 1L);
-    } else {
-        if (METHOD != "GET" && finalUrl.scheme().toLower().startsWith("http")) {
+    } else if (METHOD != "GET") {
+        auto scheme = finalUrl.scheme();
+        if (scheme.startsWith("http")) {
             curl_easy_setopt(_data.curl, CURLOPT_CUSTOMREQUEST, encode(METHOD));
+        } else if (scheme.startsWith("ftp")) {
+            if (METHOD == "POST" || METHOD == "PUT") {
+                curl_easy_setopt(_data.curl, CURLOPT_UPLOAD, 1L);
+            } else if (METHOD == "DELETE") {
+                setQuote({QString("DELE %1").arg(path)});
+                curl_easy_setopt(_data.curl, CURLOPT_QUOTE, _data.quote);
+            }
         }
     }
     if (_data.headers) curl_easy_setopt(_data.curl, CURLOPT_HTTPHEADER, _data.headers);
@@ -193,5 +214,21 @@ QCurlResponse QCurlRequest::perform(const QString &method, const QUrl &url)
         curl_mime_free(_data.form);
         _data.form = nullptr;
     }
+    if (_data.quote) {
+        curl_slist_free_all(_data.quote);
+        _data.quote = nullptr;
+    }
     return res;
+}
+
+int QCurlRequest::exists(const QString &path)
+{
+    if (_data.baseUrl.scheme().startsWith("http")) {
+        return this->perform("HEAD", path).statusCode() != 404;
+    }
+    if (_data.baseUrl.scheme().startsWith("ftp")) {
+        this->setRange("0-0");
+        return this->perform("GET", path).code() != CURLE_FTP_COULDNT_RETR_FILE;
+    }
+    return -1;
 }

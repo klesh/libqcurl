@@ -8,6 +8,7 @@ class Q_DECL_EXPORT QCurlRequest : public QObject
     Q_OBJECT
 
     QCurlData &_data;
+    bool _isPerformed = false;
     static size_t readCallback(char *buffer, size_t size, size_t nitems, void *arg);
     static int seekCallback(void *arg, curl_off_t offset, int origin);
     static void freeCallback (void *arg);
@@ -17,6 +18,7 @@ public:
     QCurlRequest(const QCurlRequest &other);
     void setHeader(const QString &name, const QString &value);
     void setHeaders(const QCurlHeaders &headers);
+    void setQuote(const QStringList quotes);
     void setUserAgent(const QString &userAgent);
     void setProxyUrl(const QUrl &proxyUrl);
     void setPrivateKeyPath(const QString &privateKeyPath);
@@ -32,7 +34,8 @@ public:
     void setBody(QIODevice &stream);
     void setRange(QString range);
 
-    QCurlResponse perform(const QString &method, const QUrl &url = QUrl());
+    QCurlResponse perform(const QString &method, const QString &path = QString());
+    int exists(const QString &path = QString());
 };
 
 #endif // QCURLREQUEST_H

@@ -40,8 +40,9 @@ public:
     QCurlResponse get(const QString &path, const QCurlHeaders &headers = QCurlHeadersEmpty);
     QCurlResponse post(const QString &path, const QCurlHeaders &headers = QCurlHeadersEmpty);
     QCurlResponse put(const QString &path, const QCurlHeaders &headers = QCurlHeadersEmpty);
-    QCurlResponse dele(const QString &path = QString(), const QCurlHeaders &headers = QCurlHeadersEmpty);
-    QCurlResponse head(const QString &path = QString(), const QCurlHeaders &headers = QCurlHeadersEmpty);
+    QCurlResponse dele(const QString &path, const QCurlHeaders &headers = QCurlHeadersEmpty);
+    QCurlResponse head(const QString &path, const QCurlHeaders &headers = QCurlHeadersEmpty);
+    int exists(const QString &path = QString());
 
     QCurlResponse post(const QString &path, const QCurlBytes &bytes, const QCurlHeaders &headers = QCurlHeadersEmpty);
     QCurlResponse post(const QString &path, const QCurlFormData &form, const QCurlHeaders &headers = QCurlHeadersEmpty);
@@ -95,6 +96,7 @@ public:
     static QCurlResponse put(const QUrl &url, const QCurlHeaders &headers = QCurlHeadersEmpty);
     static QCurlResponse dele(const QUrl &url, const QCurlHeaders &headers = QCurlHeadersEmpty);
     static QCurlResponse head(const QUrl &url, const QCurlHeaders &headers = QCurlHeadersEmpty);
+    static int exists(const QUrl &url);
 
     static QCurlResponse post(const QUrl &url, const QCurlBytes &bytes, const QCurlHeaders &headers = QCurlHeadersEmpty);
     static QCurlResponse post(const QUrl &url, const QCurlFormData &form, const QCurlHeaders &headers = QCurlHeadersEmpty);

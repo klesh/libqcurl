@@ -19,6 +19,7 @@ private slots:
     void testPost();
     void testPutAndDelete();
     void testQVariant();
+    void testExists();
 };
 
 Http::Http()
@@ -126,6 +127,15 @@ void Http::testQVariant()
     QVariant var2 = QString("foobar");
 
     QCOMPARE(var2.canConvert<QIODevice*>(), false);
+
+    QUrl url("HTTPs://example.com");
+    QCOMPARE(url.scheme(), "https");
+}
+
+void Http::testExists()
+{
+    QCOMPARE(QCurl::exists(QUrl("http://localhost:7880/echo")), 1);
+    QCOMPARE(QCurl::exists(QUrl("http://localhost:7880/notfound")), 0);
 }
 
 QTEST_APPLESS_MAIN(Http)
