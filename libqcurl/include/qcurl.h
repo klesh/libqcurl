@@ -5,6 +5,15 @@
 #include "qcurlrequest.h"
 #include "qcurlresponse.h"
 
+
+//! The QCurl class represents a Network Session.
+/*!
+    A QCurl instance holds a session to a specific baseUrl, that mean
+    you can perform multiple request on same connection.
+
+    QCurl also provides some \c static shortcut function in case you
+    just need to grab something easily.
+*/
 class Q_DECL_EXPORT QCurl : public QObject
 {
     Q_OBJECT
@@ -21,6 +30,10 @@ class Q_DECL_EXPORT QCurl : public QObject
     QCurlData _data;
 
 public:
+    //! Constructs a Network Session on baseUrl
+    /*!
+    all futher request paths are relative to the baseUrl you specified
+    */
     QCurl(const QUrl &baseUrl);
     ~QCurl();
 

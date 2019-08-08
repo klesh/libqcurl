@@ -130,6 +130,9 @@ void QCurlRequest::setBody(QCurlMultipart &parts)
         curl_mime_name(part, encode(name));
         if (value.canConvert<QIODevice*>()) {
             auto dev = value.value<QIODevice*>();
+            if (dev->isOpen() == false) {
+                dev->open(QIODevice::ReadOnly);
+            }
             curl_mime_data_cb(part, dev->size(), readCallback, seekCallback, freeCallback, dev);
             if (value.canConvert<QFileDevice*>()) {
                 auto file = value.value<QFileDevice*>();
@@ -149,6 +152,9 @@ void QCurlRequest::setBody(QCurlMultipart &parts)
 
 void QCurlRequest::setBody(QIODevice &stream)
 {
+    if (stream.isOpen() == false) {
+        stream.open(QIODevice::ReadOnly);
+    }
     setHeader("Content-Type", "application/octec-stream");
     curl_easy_setopt(_data.curl, CURLOPT_UPLOAD, 1L);
     curl_easy_setopt(_data.curl, CURLOPT_READFUNCTION, readCallback);
@@ -229,6 +235,9 @@ int QCurlRequest::exists(const QString &path)
     if (_data.baseUrl.scheme().startsWith("ftp")) {
         this->setRange("0-0");
         return this->perform("GET", path).code() != CURLE_FTP_COULDNT_RETR_FILE;
+    }
+    if (_data.baseUrl.scheme() == "sftp") {
+        return this->perform("HEAD", path).code() != CURLE_REMOTE_FILE_NOT_FOUND;
     }
     return -1;
 }

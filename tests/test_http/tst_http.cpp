@@ -88,7 +88,6 @@ void Http::testPost()
 
     QByteArray bytes = QString("hello world").toUtf8();
     QBuffer buffer(&bytes);
-    buffer.open(QIODevice::ReadOnly);
     buffer.setProperty("filename", "plaintextfile.txt");
     parts.append({"file", QVariant::fromValue(&buffer)});
     auto res5 = QCurl::post(QUrl("http://localhost:7880/parts"), parts);
@@ -96,7 +95,6 @@ void Http::testPost()
     QCOMPARE(res5.responseText(), "plaintextfile.txt\nhello world");
 
     QBuffer buffer2(&bytes);
-    buffer2.open(QIODevice::ReadOnly);
     auto res6 = QCurl::post(QUrl("http://localhost:7880/raw"), buffer2);
     QCOMPARE(res6.statusCode(), 200);
     QCOMPARE(res6.responseText(), "hello world");

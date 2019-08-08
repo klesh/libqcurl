@@ -31,7 +31,7 @@ Ftp::~Ftp()
 void Ftp::testSimpleGet()
 {
     auto res = QCurl::get(QUrl("ftp://ftpuser:ftppass@localhost:7881/hello.txt"));
-    QCOMPARE(res.responseText(), "helloworld");
+    QCOMPARE(res.responseText().trimmed(), "helloworld");
 }
 
 void Ftp::testExists()
@@ -46,7 +46,6 @@ void Ftp::testPutAndDelete()
     QCurl curl(QUrl("ftp://ftpuser:ftppass@localhost:7881/"));
     QByteArray bytes = QString("this is a test").toUtf8();
     QBuffer buffer(&bytes);
-    buffer.open(QIODevice::ReadOnly);
     auto putRes = curl.put("foobar.txt", buffer);
     QCOMPARE(putRes.code(), CURLE_OK);
 
