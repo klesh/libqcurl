@@ -20,6 +20,7 @@ private slots:
     void testPutAndDelete();
     void testQVariant();
     void testExists();
+    void testDownload();
 };
 
 Http::Http()
@@ -63,7 +64,7 @@ void Http::testPost()
     QCOMPARE(res2.responseText(), "foobar");
 
     // post ordinary form
-    QCurlFormData form;
+    QCurlForm form;
     form.append({"hello", "world"});
     auto res3 = QCurl::post(QUrl("http://localhost:7880/form"), form);
     QCOMPARE(res3.responseText(), "world");
@@ -134,6 +135,16 @@ void Http::testExists()
 {
     QCOMPARE(QCurl::exists(QUrl("http://localhost:7880/echo")), 1);
     QCOMPARE(QCurl::exists(QUrl("http://localhost:7880/notfound")), 0);
+}
+
+void Http::testDownload()
+{
+    QCurl curl(QUrl("http://localhost:7880/"));
+    QTemporaryFile file;
+    auto req = curl.request();
+    auto res = req.perform("GET", "", &file);
+    file.seek(0);
+    QCOMPARE(file.readAll(), "hello world");
 }
 
 QTEST_APPLESS_MAIN(Http)

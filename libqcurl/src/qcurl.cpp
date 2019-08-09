@@ -68,7 +68,7 @@ QCurlResponse QCurl::post(const QString &path, const QCurlBytes &bytes, const QC
     req.setBody(bytes);
     return req.perform("POST", path);
 }
-QCurlResponse QCurl::post(const QString &path, const QCurlFormData &form, const QCurlHeaders &headers)
+QCurlResponse QCurl::post(const QString &path, const QCurlForm &form, const QCurlHeaders &headers)
 {
     QCurlRequest req = request(headers);
     req.setBody(form);
@@ -100,7 +100,7 @@ QCurlResponse QCurl::put(const QString &path, const QCurlBytes &bytes, const QCu
     req.setBody(bytes);
     return req.perform("PUT", path);
 }
-QCurlResponse QCurl::put(const QString &path, const QCurlFormData &form, const QCurlHeaders &headers)
+QCurlResponse QCurl::put(const QString &path, const QCurlForm &form, const QCurlHeaders &headers)
 {
     QCurlRequest req = request(headers);
     req.setBody(form);
@@ -168,7 +168,7 @@ QCurlResponse QCurl::post(const QUrl &url, const QCurlBytes &bytes, const QCurlH
     QCurl curl(url);
     return curl.post(bytes, headers);
 }
-QCurlResponse QCurl::post(const QUrl &url, const QCurlFormData &form, const QCurlHeaders &headers)
+QCurlResponse QCurl::post(const QUrl &url, const QCurlForm &form, const QCurlHeaders &headers)
 {
     QCurl curl(url);
     return curl.post(form, headers);
@@ -198,7 +198,7 @@ QCurlResponse QCurl::put(const QUrl &url, const QCurlBytes &bytes, const QCurlHe
     return curl.put(bytes, headers);
 }
 
-QCurlResponse QCurl::put(const QUrl &url, const QCurlFormData &form, const QCurlHeaders &headers)
+QCurlResponse QCurl::put(const QUrl &url, const QCurlForm &form, const QCurlHeaders &headers)
 {
     QCurl curl(url);
     return curl.put(form, headers);

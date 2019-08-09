@@ -34,19 +34,18 @@ size_t QCurlResponse::headerCallback(char *buffer, size_t size, size_t nitems, v
     return static_cast<size_t>(l);
 }
 
-QCurlResponse::QCurlResponse(QCurlData &data, const QUrl &url)
-    : d(new QCurlResponseData(data, url))
+QCurlResponse::QCurlResponse(QCurlData &data, const QUrl &url, QIODevice *body)
+    : d(new QCurlResponseData(data, url, body))
 {
     // actually perform curl request
     curl_easy_setopt(d->data.curl, CURLOPT_HEADERFUNCTION, headerCallback);
     curl_easy_setopt(d->data.curl, CURLOPT_HEADERDATA, this);
     curl_easy_setopt(d->data.curl, CURLOPT_WRITEFUNCTION, writeCallback);
 
-    QBuffer buffer(&d->body);
-    buffer.open(QIODevice::WriteOnly);
-    curl_easy_setopt(d->data.curl, CURLOPT_WRITEDATA, &buffer);
+    curl_easy_setopt(d->data.curl, CURLOPT_WRITEDATA, d->body);
 
     d->code = curl_easy_perform(d->data.curl);
+    d->body->seek(0);
 
     if (d->code == CURLE_OK) {
         curl_easy_getinfo(d->data.curl, CURLINFO_RESPONSE_CODE, &d->statusCode);
@@ -62,15 +61,16 @@ QCurlResponse::QCurlResponse(const QCurlResponse &other) : QObject(), d(other.d)
 QString QCurlResponse::responseText()
 {
     if (d->responseText.isNull()) {
-        d->responseText = QString(d->body);
+        assert(d->body->openMode() & QIODevice::ReadOnly);
+        d->responseText = QString(d->body->readAll());
     }
     return d->responseText;
 }
 
 QJsonDocument QCurlResponse::responseJson()
 {
-    if (d->responseJson.isNull() && !d->body.isEmpty()) {
-        d->responseJson = QJsonDocument::fromJson(d->body);
+    if (d->responseJson.isNull()) {
+        d->responseJson = QJsonDocument::fromJson(this->responseText().toUtf8());
     }
     return d->responseJson;
 }

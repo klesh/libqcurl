@@ -41,6 +41,7 @@ QCurlRequest::QCurlRequest(QCurlData &data)
     : _data(data)
 {
     assert(_data.counter++ == 0); // decrease only if request is performed.
+    _data.performed = false;
     curl_easy_reset(_data.curl);
 }
 
@@ -99,7 +100,7 @@ void QCurlRequest::setBody(const QCurlBytes &bytes)
     curl_easy_setopt(_data.curl, CURLOPT_POSTFIELDS, _data.body.constData());
 }
 
-void QCurlRequest::setBody(const QCurlFormData &form)
+void QCurlRequest::setBody(const QCurlForm &form)
 {
     _data.body.clear();
     for (auto &pair : form) {
@@ -177,10 +178,10 @@ void QCurlRequest::setFlowLocation(bool flow)
     curl_easy_setopt(_data.curl, CURLOPT_FOLLOWLOCATION, flow);
 }
 
-QCurlResponse QCurlRequest::perform(const QString &method, const QString &path)
+QCurlResponse QCurlRequest::perform(const QString &method, const QString &path, QIODevice *responseBody)
 {
-    assert(!_isPerformed);
-    _isPerformed = true;
+    assert(!_data.performed);
+    _data.performed = true;
 
     QUrl url(path);
     assert(url.isRelative());
@@ -205,7 +206,7 @@ QCurlResponse QCurlRequest::perform(const QString &method, const QString &path)
     }
     if (_data.headers) curl_easy_setopt(_data.curl, CURLOPT_HTTPHEADER, _data.headers);
     curl_easy_setopt(_data.curl, CURLOPT_URL, encode(finalUrl.toString()));
-    QCurlResponse res(_data, finalUrl);
+    QCurlResponse res(_data, finalUrl, responseBody);
     _data.counter--;
 
     // release resources
