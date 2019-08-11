@@ -1,30 +1,25 @@
 #include "qcurl.h"
+#include "qcurlinternal.h"
 
 QCurl::QCurl(const QUrl &baseUrl)
+    : d(new QCurlData(baseUrl))
 {
-    _data.curl = curl_easy_init();
-    _data.baseUrl = baseUrl;
+}
+
+QCurl::QCurl(const QCurl &other)
+    : d(other.d)
+{
+
 }
 
 QCurl::~QCurl()
 {
-    curl_easy_cleanup(_data.curl);
-    if (_data.cookies) curl_slist_free_all(_data.cookies);
-    _data.curl = nullptr;
-    _data.cookies = nullptr;
 }
 
 QCurlRequest QCurl::request(const QCurlHeaders &headers)
 {
-    QCurlRequest req(_data);
+    QCurlRequest req(*d);
     req.setHeaders(headers);
-    if (!_userAgent.isEmpty()) req.setUserAgent(_userAgent);
-    if (!_proxyUrl.isEmpty()) req.setProxyUrl(_proxyUrl);
-    if (!_privateKeyPath.isEmpty()) req.setPrivateKeyPath(_privateKeyPath);
-    if (!_publicKeyPath.isEmpty()) req.setPublicKeyPath(_publicKeyPath);
-    if (!_keyPassword.isEmpty()) req.setKeyPassword(_keyPassword);
-    req.setVerbose(_verbose);
-    req.setFlowLocation(_flowLocation);
     return req;
 }
 

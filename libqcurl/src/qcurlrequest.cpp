@@ -1,9 +1,10 @@
 #include "qcurlrequest.h"
+#include "qcurlinternal.h"
 #include "qcurlresponse.h"
 
 #define encode(text) text.toUtf8().constData()
 
-size_t QCurlRequest::readCallback(char *buffer, size_t size, size_t nitems, void *arg)
+size_t readCallback(char *buffer, size_t size, size_t nitems, void *arg)
 {
     auto dev = static_cast<QIODevice*>(arg);
     auto left = static_cast<size_t>(dev->size() - dev->pos());
@@ -13,7 +14,7 @@ size_t QCurlRequest::readCallback(char *buffer, size_t size, size_t nitems, void
     return s;
 }
 
-int QCurlRequest::seekCallback(void *arg, curl_off_t offset, int origin)
+int seekCallback(void *arg, curl_off_t offset, int origin)
 {
     auto dev = static_cast<QIODevice*>(arg);
 
@@ -31,23 +32,30 @@ int QCurlRequest::seekCallback(void *arg, curl_off_t offset, int origin)
     return CURL_SEEKFUNC_OK;
 }
 
-void QCurlRequest::freeCallback(void *arg)
+void freeCallback(void *arg)
 {
     auto dev = static_cast<QIODevice*>(arg);
     dev->close();
 }
 
 QCurlRequest::QCurlRequest(QCurlData &data)
-    : _data(data)
+    : d(new QCurlRequestData(data))
 {
-    assert(_data.counter++ == 0); // decrease only if request is performed.
-    _data.performed = false;
-    curl_easy_reset(_data.curl);
+    assert(d->session.counter++ == 0);
+    if (!data.userAgent.isEmpty()) setUserAgent(data.userAgent);
+    if (!data.proxyUrl.isEmpty()) setProxyUrl(data.proxyUrl);
+    if (!data.privateKeyPath.isEmpty()) setPrivateKeyPath(data.privateKeyPath);
+    if (!data.publicKeyPath.isEmpty()) setPublicKeyPath(data.publicKeyPath);
+    if (!data.keyPassword.isEmpty()) setKeyPassword(data.keyPassword);
+    setVerbose(data.verbose);
+    setFlowLocation(data.flowLocation);
+    d->performed = false;
+    curl_easy_reset(data.curl);
 }
 
 void QCurlRequest::setHeader(const QString &name, const QString &value)
 {
-    _data.headers = curl_slist_append(_data.headers, encode(QString("%1: %2").arg(name).arg(value)));
+    d->headers = curl_slist_append(d->headers, encode(QString("%1: %2").arg(name).arg(value)));
 }
 
 void QCurlRequest::setHeaders(const QMap<QString, QString> &headers)
@@ -60,72 +68,72 @@ void QCurlRequest::setHeaders(const QMap<QString, QString> &headers)
 void QCurlRequest::setQuote(const QStringList quote)
 {
     for (const auto &line : quote) {
-        _data.quote = curl_slist_append(_data.quote, encode(line));
+        d->quote = curl_slist_append(d->quote, encode(line));
     }
 }
 
 void QCurlRequest::setUserAgent(const QString &userAgent)
 {
-    curl_easy_setopt(_data.curl, CURLOPT_USERAGENT, encode(userAgent));
+    curl_easy_setopt(d->session.curl, CURLOPT_USERAGENT, encode(userAgent));
 }
 
 void QCurlRequest::setProxyUrl(const QUrl &proxyUrl)
 {
-    curl_easy_setopt(_data.curl, CURLOPT_PROXY, encode(proxyUrl.toString()));
+    curl_easy_setopt(d->session.curl, CURLOPT_PROXY, encode(proxyUrl.toString()));
 }
 
 void QCurlRequest::setPrivateKeyPath(const QString &privateKeyPath)
 {
-    curl_easy_setopt(_data.curl, CURLOPT_SSH_PRIVATE_KEYFILE, encode(privateKeyPath));
+    curl_easy_setopt(d->session.curl, CURLOPT_SSH_PRIVATE_KEYFILE, encode(privateKeyPath));
 }
 
 void QCurlRequest::setPublicKeyPath(const QString &publicKeyPath)
 {
-    curl_easy_setopt(_data.curl, CURLOPT_SSH_PUBLIC_KEYFILE, encode(publicKeyPath));
+    curl_easy_setopt(d->session.curl, CURLOPT_SSH_PUBLIC_KEYFILE, encode(publicKeyPath));
 }
 
 void QCurlRequest::setKeyPassword(const QString &keyPassword)
 {
-    curl_easy_setopt(_data.curl, CURLOPT_KEYPASSWD, encode(keyPassword));
+    curl_easy_setopt(d->session.curl, CURLOPT_KEYPASSWD, encode(keyPassword));
 }
 
 void QCurlRequest::setVerbose(bool verbose)
 {
-    curl_easy_setopt(_data.curl, CURLOPT_VERBOSE, verbose);
+    curl_easy_setopt(d->session.curl, CURLOPT_VERBOSE, verbose);
 }
 
 void QCurlRequest::setBody(const QCurlBytes &bytes)
 {
-    _data.body = bytes;
-    curl_easy_setopt(_data.curl, CURLOPT_POSTFIELDS, _data.body.constData());
+    d->body = bytes;
+    curl_easy_setopt(d->session.curl, CURLOPT_POSTFIELDS, d->body.constData());
 }
 
 void QCurlRequest::setBody(const QCurlForm &form)
 {
-    _data.body.clear();
+    d->body.clear();
     for (auto &pair : form) {
-        if (!_data.body.isEmpty()) _data.body.append('&');
-        _data.body.append(curl_easy_escape(_data.curl, pair.first.toUtf8().constData(), 0));
-        _data.body.append('=');
-        _data.body.append(curl_easy_escape(_data.curl, pair.second.toUtf8().constData(), 0));
+        if (!d->body.isEmpty()) d->body.append('&');
+        d->body.append(curl_easy_escape(d->session.curl, pair.first.toUtf8().constData(), 0));
+        d->body.append('=');
+        d->body.append(curl_easy_escape(d->session.curl, pair.second.toUtf8().constData(), 0));
     }
-    curl_easy_setopt(_data.curl, CURLOPT_POSTFIELDS, _data.body.constData());
+    curl_easy_setopt(d->session.curl, CURLOPT_POSTFIELDS, d->body.constData());
 }
 
 void QCurlRequest::setBody(const QCurlJson &json)
 {
-    _data.body = json.toJson();
+    d->body = json.toJson();
     setHeader("Content-Type", "application/json; charset=utf-8");
-    curl_easy_setopt(_data.curl, CURLOPT_POSTFIELDS, _data.body.constData());
+    curl_easy_setopt(d->session.curl, CURLOPT_POSTFIELDS, d->body.constData());
 }
 
 void QCurlRequest::setBody(QCurlMultipart &parts)
 {
-    if (_data.form) curl_mime_free(_data.form);
-    _data.form = curl_mime_init(_data.curl);
+    if (d->form) curl_mime_free(d->form);
+    d->form = curl_mime_init(d->session.curl);
 
     for (auto &pair : parts) {
-        auto part = curl_mime_addpart(_data.form);
+        auto part = curl_mime_addpart(d->form);
         auto name = pair.first;
         auto value = pair.second;
         curl_mime_name(part, encode(name));
@@ -148,7 +156,7 @@ void QCurlRequest::setBody(QCurlMultipart &parts)
             curl_mime_data(part, encode(value.toString()), CURL_ZERO_TERMINATED);
         }
     }
-    curl_easy_setopt(_data.curl, CURLOPT_MIMEPOST, _data.form);
+    curl_easy_setopt(d->session.curl, CURLOPT_MIMEPOST, d->form);
 }
 
 void QCurlRequest::setBody(QIODevice &stream)
@@ -157,87 +165,71 @@ void QCurlRequest::setBody(QIODevice &stream)
         stream.open(QIODevice::ReadOnly);
     }
     setHeader("Content-Type", "application/octec-stream");
-    curl_easy_setopt(_data.curl, CURLOPT_UPLOAD, 1L);
-    curl_easy_setopt(_data.curl, CURLOPT_READFUNCTION, readCallback);
-    curl_easy_setopt(_data.curl, CURLOPT_READDATA, &stream);
-    curl_easy_setopt(_data.curl, CURLOPT_INFILESIZE_LARGE, static_cast<curl_off_t>(stream.size()));
+    curl_easy_setopt(d->session.curl, CURLOPT_UPLOAD, 1L);
+    curl_easy_setopt(d->session.curl, CURLOPT_READFUNCTION, readCallback);
+    curl_easy_setopt(d->session.curl, CURLOPT_READDATA, &stream);
+    curl_easy_setopt(d->session.curl, CURLOPT_INFILESIZE_LARGE, static_cast<curl_off_t>(stream.size()));
 }
 
 void QCurlRequest::setRange(QString range)
 {
-    curl_easy_setopt(_data.curl, CURLOPT_RANGE, encode(range));
+    curl_easy_setopt(d->session.curl, CURLOPT_RANGE, encode(range));
 }
 
 void QCurlRequest::setNoBody(bool nobody)
 {
-    curl_easy_setopt(_data.curl, CURLOPT_NOBODY, nobody);
+    curl_easy_setopt(d->session.curl, CURLOPT_NOBODY, nobody);
 }
 
 void QCurlRequest::setFlowLocation(bool flow)
 {
-    curl_easy_setopt(_data.curl, CURLOPT_FOLLOWLOCATION, flow);
+    curl_easy_setopt(d->session.curl, CURLOPT_FOLLOWLOCATION, flow);
 }
 
 QCurlResponse QCurlRequest::perform(const QString &method, const QString &path, QIODevice *responseBody)
 {
-    assert(!_data.performed);
-    _data.performed = true;
+    assert(!d->performed);
+    d->performed = true;
 
     QUrl url(path);
     assert(url.isRelative());
 
     QString METHOD = method.toUpper();
-    const QUrl finalUrl = _data.baseUrl.resolved(url);
+    const QUrl finalUrl = d->session.baseUrl.resolved(url);
     if (METHOD == "HEAD") {
-        curl_easy_setopt(_data.curl, CURLOPT_NOBODY, 1L);
-        curl_easy_setopt(_data.curl, CURLOPT_HEADER, 1L);
+        curl_easy_setopt(d->session.curl, CURLOPT_NOBODY, 1L);
+        curl_easy_setopt(d->session.curl, CURLOPT_HEADER, 1L);
     } else if (METHOD != "GET") {
         auto scheme = finalUrl.scheme();
         if (scheme.startsWith("http")) {
-            curl_easy_setopt(_data.curl, CURLOPT_CUSTOMREQUEST, encode(METHOD));
+            curl_easy_setopt(d->session.curl, CURLOPT_CUSTOMREQUEST, encode(METHOD));
         } else if (scheme.startsWith("ftp")) {
             if (METHOD == "POST" || METHOD == "PUT") {
-                curl_easy_setopt(_data.curl, CURLOPT_UPLOAD, 1L);
+                curl_easy_setopt(d->session.curl, CURLOPT_UPLOAD, 1L);
             } else if (METHOD == "DELETE") {
                 setQuote({QString("DELE %1").arg(path)});
-                curl_easy_setopt(_data.curl, CURLOPT_QUOTE, _data.quote);
+                curl_easy_setopt(d->session.curl, CURLOPT_QUOTE, d->quote);
             }
         }
     }
-    if (_data.headers) curl_easy_setopt(_data.curl, CURLOPT_HTTPHEADER, _data.headers);
-    curl_easy_setopt(_data.curl, CURLOPT_URL, encode(finalUrl.toString()));
-    QCurlResponse res(_data, finalUrl, responseBody);
-    _data.counter--;
+    if (d->headers) curl_easy_setopt(d->session.curl, CURLOPT_HTTPHEADER, d->headers);
+    curl_easy_setopt(d->session.curl, CURLOPT_URL, encode(finalUrl.toString()));
+    QCurlResponse res(*d, finalUrl, responseBody);
+    d->session.counter--;
 
-    // release resources
-    if (_data.headers) {
-        curl_slist_free_all(_data.headers);
-        _data.headers = nullptr;
-    }
-    if (!_data.body.isNull()) {
-        _data.body = QByteArray();
-    }
-    if (_data.form) {
-        curl_mime_free(_data.form);
-        _data.form = nullptr;
-    }
-    if (_data.quote) {
-        curl_slist_free_all(_data.quote);
-        _data.quote = nullptr;
-    }
     return res;
 }
 
 int QCurlRequest::exists(const QString &path)
 {
-    if (_data.baseUrl.scheme().startsWith("http")) {
+    if (d->session.baseUrl.scheme().startsWith("http")) {
         return this->perform("HEAD", path).statusCode() != 404;
     }
-    if (_data.baseUrl.scheme().startsWith("ftp")) {
+    if (d->session.baseUrl.scheme().startsWith("ftp")) {
         this->setRange("0-0");
         return this->perform("GET", path).code() != CURLE_FTP_COULDNT_RETR_FILE;
     }
-    if (_data.baseUrl.scheme() == "sftp") {
+    if (d->session.baseUrl.scheme() == "sftp") {
         return this->perform("HEAD", path).code() != CURLE_REMOTE_FILE_NOT_FOUND;
     }
     return -1;

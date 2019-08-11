@@ -16,10 +16,7 @@ class Q_DECL_EXPORT QCurlRequest : public QObject
 {
     Q_OBJECT
 
-    QCurlData &_data;
-    static size_t readCallback(char *buffer, size_t size, size_t nitems, void *arg);
-    static int seekCallback(void *arg, curl_off_t offset, int origin);
-    static void freeCallback (void *arg);
+    QSharedDataPointer<QCurlRequestData> d;
 
 public:
     QCurlRequest(QCurlData &data);

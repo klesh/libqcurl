@@ -1,6 +1,7 @@
 #include "qcurlresponse.h"
+#include "qcurlinternal.h"
 
-size_t QCurlResponse::writeCallback(char *ptr, size_t size, size_t nmemb, void *userdata)
+size_t writeCallback(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
     int l = static_cast<int>(size * nmemb);
     auto out = static_cast<QIODevice*>(userdata);
@@ -8,25 +9,25 @@ size_t QCurlResponse::writeCallback(char *ptr, size_t size, size_t nmemb, void *
     return static_cast<size_t>(l);
 }
 
-size_t QCurlResponse::headerCallback(char *buffer, size_t size, size_t nitems, void *userdata)
+size_t headerCallback(char *buffer, size_t size, size_t nitems, void *userdata)
 {
     int l = static_cast<int>(size * nitems);
-    auto res = static_cast<QCurlResponse*>(userdata);
+    auto resdata = static_cast<QCurlResponseData*>(userdata);
     QByteArray bytes;
     bytes.append(buffer, l);
     QString text(bytes);
     text = text.trimmed();
-    auto scheme = res->d->url.scheme();
+    auto scheme = resdata->url.scheme();
     if (scheme.startsWith("http")) {
         if (text.contains(':')) {
             auto tmp = text.split(':');
-            res->d->headers.insert(tmp[0], tmp[1].trimmed());
+            resdata->headers.insert(tmp[0], tmp[1].trimmed());
         } else if (!text.isEmpty()) {
             int fs = text.indexOf(' ');
             int ss = text.indexOf(' ', fs + 1);
             QString statusCode = text.mid(fs + 1, ss - fs - 1);
-            res->d->statusCode = statusCode.toLong();
-            res->d->status = text.mid(ss + 1).trimmed();
+            resdata->statusCode = statusCode.toLong();
+            resdata->status = text.mid(ss + 1).trimmed();
         }
     } else if (scheme.startsWith("ftp")) {
         qDebug() << "** header" << text;
@@ -34,21 +35,21 @@ size_t QCurlResponse::headerCallback(char *buffer, size_t size, size_t nitems, v
     return static_cast<size_t>(l);
 }
 
-QCurlResponse::QCurlResponse(QCurlData &data, const QUrl &url, QIODevice *body)
+QCurlResponse::QCurlResponse(QCurlRequestData &data, const QUrl &url, QIODevice *body)
     : d(new QCurlResponseData(data, url, body))
 {
     // actually perform curl request
-    curl_easy_setopt(d->data.curl, CURLOPT_HEADERFUNCTION, headerCallback);
-    curl_easy_setopt(d->data.curl, CURLOPT_HEADERDATA, this);
-    curl_easy_setopt(d->data.curl, CURLOPT_WRITEFUNCTION, writeCallback);
+    curl_easy_setopt(d->request.session.curl, CURLOPT_HEADERFUNCTION, headerCallback);
+    curl_easy_setopt(d->request.session.curl, CURLOPT_HEADERDATA, this);
+    curl_easy_setopt(d->request.session.curl, CURLOPT_WRITEFUNCTION, writeCallback);
 
-    curl_easy_setopt(d->data.curl, CURLOPT_WRITEDATA, d->body);
+    curl_easy_setopt(d->request.session.curl, CURLOPT_WRITEDATA, d->body);
 
-    d->code = curl_easy_perform(d->data.curl);
+    d->code = curl_easy_perform(d->request.session.curl);
     d->body->seek(0);
 
     if (d->code == CURLE_OK) {
-        curl_easy_getinfo(d->data.curl, CURLINFO_RESPONSE_CODE, &d->statusCode);
+        curl_easy_getinfo(d->request.session.curl, CURLINFO_RESPONSE_CODE, &d->statusCode);
     }
 }
 

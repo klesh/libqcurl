@@ -27,6 +27,7 @@ INCLUDEPATH += include
 HEADERS += \
     include/qcurl.h \
     include/qcurlbase.h \
+    include/qcurlinternal.h \
     include/qcurlrequest.h \
     include/qcurlresponse.h
 
@@ -35,12 +36,50 @@ SOURCES += \
         src/qcurlrequest.cpp \
         src/qcurlresponse.cpp
 
+include(../config.pri)
+
+DESTDIR = $$QCURL_DESTDIR
+#OUT_PWD = $$DESTDIR
+#OUT_PWD = $$PROJECT_ROOT/builds/$$QT_ARCH/libqcurl
+
 win32 {
-    INCLUDEPATH += ../deps/win32/include
-    LIBS += -L$$PWD/../deps/win32/lib -llibcurl \
+    PRE_TARGETDEPS += $$DEPSDIR/lib/libcurl.lib
+    INCLUDEPATH += $$DEPSDIR/include
+    LIBS += -L$$DEPSDIR/lib -llibcurl \
             -lws2_32 -lAdvapi32 -lCrypt32 -lWldap32 -lNormaliz -lUser32
+
+    inc.path = $$DESTDIR/include
+    inc.files = $$PWD/include/*.h
+    INSTALLS += inc
+
+    bin.path = $$DESTDIR/
+    bin.files = $$DEPSDIR/bin/*.dll
+    INSTALLS += bin
 }
 
 unix {
     LIBS += -lcurl
+
+    headers.path = /usr/include
+    headers.files = $$PWD/include/*.h
+    INSTALLS += headers
+
+    libs.path = /usr/lib
+    libs.files = $$PWD/../builds/release/libqcurl/libqcurl.so*
+    INSTALLS += libs
+
+    pkgcfg.path = /usr/lib/pkgconfig
+    pkgcfg.files = $$PWD/libqcurl.pc
+    INSTALLS += pkgcfg
+
+    CONFIG += create_pc create_prl no_install_prl
+
+    QMAKE_PKGCONFIG_NAME = libqcurl
+    QMAKE_PKGCONFIG_DESCRIPTION = Make Network Access easier on Qt with curl
+    QMAKE_PKGCONFIG_PREFIX = /usr
+    QMAKE_PKGCONFIG_LIBDIR = $$QMAKE_PKGCONFIG_PREFIX/lib
+    QMAKE_PKGCONFIG_INCDIR = $$QMAKE_PKGCONFIG_PREFIX/include
+    QMAKE_PKGCONFIG_VERSION = $$VERSION
+    QMAKE_PKGCONFIG_REQUIRES = libcurl
+    QMAKE_PKGCONFIG_DESTDIR = $$QMAKE_PKGCONFIG_PREFIX/lib/pkgconfig
 }

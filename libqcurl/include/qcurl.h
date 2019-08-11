@@ -5,7 +5,6 @@
 #include "qcurlrequest.h"
 #include "qcurlresponse.h"
 
-
 //! The QCurl class represents a Network Session.
 /*!
  *  A QCurl instance holds a session to a specific baseUrl, that mean
@@ -17,17 +16,7 @@
 class Q_DECL_EXPORT QCurl : public QObject
 {
     Q_OBJECT
-
-    QCurlHeaders _headers;
-    QString _userAgent;
-    QUrl _proxyUrl;
-    QString _privateKeyPath;
-    QString _publicKeyPath;
-    QString _keyPassword;
-    bool _verbose = false;
-    bool _flowLocation = true;
-
-    QCurlData _data;
+    QSharedDataPointer<QCurlData> d;
 
 public:
 
@@ -38,22 +27,23 @@ public:
      *                for a directory, please make sure it has a / ending.
      */
     QCurl(const QUrl &baseUrl);
+    QCurl(const QCurl &other);
     ~QCurl();
 
     //! Set default http headers for this session
     /*!
      * \param headers a QMap<QString, QString> contains all your customize header pairs
      */
-    void setHeaders(const QCurlHeaders &headers) { _headers = headers; }
+    void setHeaders(const QCurlHeaders &headers);
 
     //! Set default http user-agent string for this session
-    void setUserAgent(const QString &userAgent) { _userAgent = userAgent; }
+    void setUserAgent(const QString &userAgent);
 
     //! Setup default proxy for this request
     /*!
      * \param proxyUrl i.e. socks5://localhost:1080
      */
-    void setProxyUrl(const QUrl &proxyUrl) { _proxyUrl = proxyUrl; }
+    void setProxyUrl(const QUrl &proxyUrl);
 
     //! Setup SSH keys for SFTP
     /*!
@@ -62,17 +52,13 @@ public:
      * \param publicKeyPath optional, could speed up connecting time a little bit
      * \param keyPassword if your private key needs a password
      */
-    void setSshKeyFiles(const QString &privateKeyPath, const QString &publicKeyPath = QString(), const QString &keyPassword = QString()) {
-        _privateKeyPath = privateKeyPath;
-        _publicKeyPath = publicKeyPath;
-        _keyPassword = keyPassword;
-    }
+    void setSshKeyFiles(const QString &privateKeyPath, const QString &publicKeyPath = QString(), const QString &keyPassword = QString());
 
     //! Turn on/off curl's verbose mode
-    void setVerbose(bool verbose) { _verbose = verbose; }
+    void setVerbose(bool verbose);
 
     //! Whether flow redirection
-    void setFlowLocation(bool flowLocation) { _flowLocation = flowLocation; }
+    void setFlowLocation(bool flowLocation);
 
     //! Return a QCurlRequest instance, so you can customize some setting before you actually perform it.
     /*!
