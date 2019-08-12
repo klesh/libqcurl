@@ -1,5 +1,4 @@
 #include "qcurl.h"
-#include "qcurlinternal.h"
 
 QCurl::QCurl(const QUrl &baseUrl)
     : d(new QCurlData(baseUrl))
@@ -7,13 +6,45 @@ QCurl::QCurl(const QUrl &baseUrl)
 }
 
 QCurl::QCurl(const QCurl &other)
-    : d(other.d)
+    : QObject(), d(other.d)
 {
 
 }
 
 QCurl::~QCurl()
 {
+}
+
+void QCurl::setHeaders(const QMap<QString, QString> &headers)
+{
+    d->headers = headers;
+}
+
+void QCurl::setUserAgent(const QString &userAgent)
+{
+    d->userAgent = userAgent;
+}
+
+void QCurl::setProxyUrl(const QUrl &proxyUrl)
+{
+    d->proxyUrl = proxyUrl;
+}
+
+void QCurl::setSshKeyFiles(const QString &privateKeyPath, const QString &publicKeyPath, const QString &keyPassword)
+{
+    d->privateKeyPath = privateKeyPath;
+    d->publicKeyPath = publicKeyPath;
+    d->keyPassword = keyPassword;
+}
+
+void QCurl::setVerbose(bool verbose)
+{
+    d->verbose = verbose;
+}
+
+void QCurl::setFlowLocation(bool flowLocation)
+{
+    d->flowLocation = flowLocation;
 }
 
 QCurlRequest QCurl::request(const QCurlHeaders &headers)

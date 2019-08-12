@@ -1,6 +1,6 @@
 #include "qcurlrequest.h"
-#include "qcurlinternal.h"
 #include "qcurlresponse.h"
+#include <curl/curl.h>
 
 #define encode(text) text.toUtf8().constData()
 
@@ -55,7 +55,7 @@ QCurlRequest::QCurlRequest(QCurlData &data)
 
 void QCurlRequest::setHeader(const QString &name, const QString &value)
 {
-    d->headers = curl_slist_append(d->headers, encode(QString("%1: %2").arg(name).arg(value)));
+    d->headers = curl_slist_append(CURL_SLIST(d->headers), encode(QString("%1: %2").arg(name).arg(value)));
 }
 
 void QCurlRequest::setHeaders(const QMap<QString, QString> &headers)
@@ -68,7 +68,7 @@ void QCurlRequest::setHeaders(const QMap<QString, QString> &headers)
 void QCurlRequest::setQuote(const QStringList quote)
 {
     for (const auto &line : quote) {
-        d->quote = curl_slist_append(d->quote, encode(line));
+        d->quote = curl_slist_append(CURL_SLIST(d->quote), encode(line));
     }
 }
 
@@ -129,11 +129,11 @@ void QCurlRequest::setBody(const QCurlJson &json)
 
 void QCurlRequest::setBody(QCurlMultipart &parts)
 {
-    if (d->form) curl_mime_free(d->form);
+    if (d->form) curl_mime_free(CURL_MIME(d->form));
     d->form = curl_mime_init(d->session.curl);
 
     for (auto &pair : parts) {
-        auto part = curl_mime_addpart(d->form);
+        auto part = curl_mime_addpart(CURL_MIME(d->form));
         auto name = pair.first;
         auto value = pair.second;
         curl_mime_name(part, encode(name));

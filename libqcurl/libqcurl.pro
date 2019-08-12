@@ -27,12 +27,12 @@ INCLUDEPATH += include
 HEADERS += \
     include/qcurl.h \
     include/qcurlbase.h \
-    include/qcurlinternal.h \
     include/qcurlrequest.h \
     include/qcurlresponse.h
 
 SOURCES += \
         src/qcurl.cpp \
+        src/qcurlbase.cpp \
         src/qcurlrequest.cpp \
         src/qcurlresponse.cpp
 

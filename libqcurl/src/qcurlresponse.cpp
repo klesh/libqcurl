@@ -1,5 +1,5 @@
 #include "qcurlresponse.h"
-#include "qcurlinternal.h"
+#include <curl/curl.h>
 
 size_t writeCallback(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
@@ -40,7 +40,7 @@ QCurlResponse::QCurlResponse(QCurlRequestData &data, const QUrl &url, QIODevice 
 {
     // actually perform curl request
     curl_easy_setopt(d->request.session.curl, CURLOPT_HEADERFUNCTION, headerCallback);
-    curl_easy_setopt(d->request.session.curl, CURLOPT_HEADERDATA, this);
+    curl_easy_setopt(d->request.session.curl, CURLOPT_HEADERDATA, d.data());
     curl_easy_setopt(d->request.session.curl, CURLOPT_WRITEFUNCTION, writeCallback);
 
     curl_easy_setopt(d->request.session.curl, CURLOPT_WRITEDATA, d->body);
@@ -56,6 +56,31 @@ QCurlResponse::QCurlResponse(QCurlRequestData &data, const QUrl &url, QIODevice 
 QCurlResponse::QCurlResponse(const QCurlResponse &other) : QObject(), d(other.d)
 {
 
+}
+
+int QCurlResponse::code()
+{
+    return d->code;
+}
+
+QString QCurlResponse::message()
+{
+    return d->message;
+}
+
+QMap<QString, QString> &QCurlResponse::headers()
+{
+    return d->headers;
+}
+
+long QCurlResponse::statusCode()
+{
+    return d->statusCode;
+}
+
+QString QCurlResponse::status()
+{
+    return d->status;
 }
 
 

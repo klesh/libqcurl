@@ -12,6 +12,7 @@
   },
   "scripts": {
     "http": "node index.js",
-    "ftp": "ftp-srv ftp://127.0.0.1:7881 --root ./ftp --username ftpuser --password ftppass"
+    "ftp": "ftp-srv ftp://127.0.0.1:7881 --root ./ftp --username ftpuser --password ftppass",
+    "ssh": "docker run -it --rm --name mock-sshd -p 7882:22 mock-sshd"
   }
 }

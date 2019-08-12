@@ -47,7 +47,7 @@ void Ftp::testPutAndDelete()
     QByteArray bytes = QString("this is a test").toUtf8();
     QBuffer buffer(&bytes);
     auto putRes = curl.put("foobar.txt", buffer);
-    QCOMPARE(putRes.code(), CURLE_OK);
+    QCOMPARE(putRes.code(), 0);
 
     auto getRes = curl.get("foobar.txt");
     QCOMPARE(getRes.responseText(), "this is a test");
