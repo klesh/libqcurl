@@ -20,11 +20,6 @@ unix {
 }
 
 win32 {
-#            -L$$PWD/../../deps/win32/lib  -llibcurl -llibssh2.dll -llibcrypto.dll -llibssl.dll \
-    LIBS += -L$$QCURL_DESTDIR -llibqcurl1 \
-            -lWs2_32 -lAdvapi32 -lCrypt32 -lWldap32 -lNormaliz -lUser32
-    dlls.path = $$PROJECT_ROOT/builds/tests/test_ftp/debug
-    dlls.files = $$PROJECT_ROOT/deps/win32/bin/*.dll
-    INSTALLS += dlls
+    LIBS += -L$$QCURL_DESTDIR \
+            -llibqcurl1
 }
-

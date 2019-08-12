@@ -30,7 +30,7 @@ struct QCurlData: public QSharedData
     int counter = 0; // make sure only one request at a time
 
     QCurlData(const QUrl &baseUrl);
-    ~QCurlData();
+    virtual ~QCurlData();
 };
 
 struct QCurlRequestData : public QSharedData
@@ -44,7 +44,7 @@ struct QCurlRequestData : public QSharedData
     bool performed = false;
 
     QCurlRequestData(QCurlData &data);
-    ~QCurlRequestData();
+    virtual ~QCurlRequestData();
 };
 
 struct QCurlResponseData : public QSharedData
@@ -62,7 +62,7 @@ struct QCurlResponseData : public QSharedData
     bool bodyDeletion = false;
 
     QCurlResponseData(QCurlRequestData &d, const QUrl &u, QIODevice *b = nullptr);
-    ~QCurlResponseData();
+    virtual ~QCurlResponseData();
 };
 
 class QCurlRequest;

@@ -42,8 +42,7 @@ QCurlResponseData::QCurlResponseData(QCurlRequestData &d, const QUrl &u, QIODevi
     assert(body->openMode() != QIODevice::ReadOnly);
 }
 
-QCurlResponseData::QCurlResponseData::~QCurlResponseData()
-{
+QCurlResponseData::~QCurlResponseData() {
     if (bodyDeletion) {
         body->close();
         delete body;

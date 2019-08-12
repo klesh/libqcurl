@@ -1,8 +1,6 @@
 QT += testlib core
 QT -= gui
 
-VERSION = 1.0.0
-
 CONFIG += qt console warn_on depend_includepath testcase
 CONFIG -= app_bundle
 
@@ -19,4 +17,9 @@ INCLUDEPATH += ../../libqcurl/include
 unix {
     LIBS += -L$$QCURL_DESTDIR \
             -lqcurl
+}
+
+win32 {
+    LIBS += -L$$QCURL_DESTDIR \
+            -llibqcurl1
 }

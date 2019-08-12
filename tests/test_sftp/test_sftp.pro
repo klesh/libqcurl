@@ -21,3 +21,8 @@ unix {
     LIBS += -L$$QCURL_DESTDIR \
             -lqcurl
 }
+
+win32 {
+    LIBS += -L$$QCURL_DESTDIR \
+            -llibqcurl1
+}

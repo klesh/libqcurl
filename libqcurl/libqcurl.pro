@@ -4,10 +4,13 @@
 #
 #-------------------------------------------------
 
-QT       += core
+#QT       += core
+QT       -= gui
 
 TARGET = qcurl
 TEMPLATE = lib
+
+DEFINES += QTDLL_LIBRARY
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -39,14 +42,16 @@ SOURCES += \
 include(../config.pri)
 
 DESTDIR = $$QCURL_DESTDIR
-#OUT_PWD = $$DESTDIR
-#OUT_PWD = $$PROJECT_ROOT/builds/$$QT_ARCH/libqcurl
 
 win32 {
-    PRE_TARGETDEPS += $$DEPSDIR/lib/libcurl.lib
     INCLUDEPATH += $$DEPSDIR/include
-    LIBS += -L$$DEPSDIR/lib -llibcurl \
-            -lws2_32 -lAdvapi32 -lCrypt32 -lWldap32 -lNormaliz -lUser32
+    LIBS += -L$$DEPSDIR/lib -lws2_32 -lAdvapi32 -lCrypt32 -lWldap32 -lNormaliz -lUser32
+    equals(DEP, "selfbuild") {
+        PRE_TARGETDEPS += $$DEPSDIR/lib/libcurl.lib
+        LIBS += -llibcurl
+    } else {
+        LIBS += -llibcurl.dll
+    }
 
     inc.path = $$DESTDIR/include
     inc.files = $$PWD/include/*.h

@@ -6,3 +6,10 @@ password: sftppass
 username: sftpkey
 privatekey: id_rsa
 privatekey password: pass
+
+
+# Build image
+docker build -t mock-sshd .
+
+# Run docker
+docker run -it --rm --name mock-sshd -p 7882:22 mock-sshd
