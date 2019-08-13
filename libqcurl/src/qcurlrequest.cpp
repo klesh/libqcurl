@@ -293,7 +293,8 @@ int QCurlRequest::exists(const QString &path)
     }
     if (d->session.baseUrl.scheme().startsWith("ftp")) {
         this->setRange("0-0");
-        return this->perform("GET", path).code() != CURLE_FTP_COULDNT_RETR_FILE;
+        auto code = this->perform("GET", path).code();
+        return code != CURLE_FTP_COULDNT_RETR_FILE && code != CURLE_REMOTE_FILE_NOT_FOUND;
     }
     if (d->session.baseUrl.scheme() == "sftp") {
         return this->perform("HEAD", path).code() != CURLE_REMOTE_FILE_NOT_FOUND;

@@ -29,8 +29,6 @@ size_t headerCallback(char *buffer, size_t size, size_t nitems, void *userdata)
             resdata->statusCode = statusCode.toLong();
             resdata->status = text.mid(ss + 1).trimmed();
         }
-    } else if (scheme.startsWith("ftp")) {
-        qDebug() << "** header" << text;
     }
     return static_cast<size_t>(l);
 }

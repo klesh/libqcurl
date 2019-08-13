@@ -44,6 +44,12 @@ void Ftp::testExists()
 void Ftp::testPutAndDelete()
 {
     QCurl curl(QUrl("ftp://ftpuser:ftppass@localhost:7881/"));
+//    auto req = curl.request();
+//    req.setRange("0-0");
+//    req.setVerbose(true);
+//    auto res = req.perform("GET", "foobar.txt");
+//    qDebug() << res.code();
+
     QByteArray bytes = QString("this is a test").toUtf8();
     QBuffer buffer(&bytes);
     auto putRes = curl.put("foobar.txt", buffer);

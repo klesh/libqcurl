@@ -1,6 +1,7 @@
 var searchData=
 [
   ['setbody',['setBody',['../classQCurlRequest.html#a4a349964b3388f58ad4cef4a59fc5054',1,'QCurlRequest::setBody(const QCurlBytes &amp;bytes)'],['../classQCurlRequest.html#a50950cbe4b9dcd4b4f84b6ed645df271',1,'QCurlRequest::setBody(const QCurlForm &amp;form)'],['../classQCurlRequest.html#afce977ffbd50cc06498093057e6947f4',1,'QCurlRequest::setBody(const QCurlJson &amp;json)'],['../classQCurlRequest.html#a26cbea16951a3f13ef642a54cb845c8b',1,'QCurlRequest::setBody(QCurlMultipart &amp;parts)'],['../classQCurlRequest.html#a23c60925b2c339b5525b4a1f4df7724a',1,'QCurlRequest::setBody(QIODevice &amp;stream)']]],
+  ['setcapath',['setCaPath',['../classQCurl.html#aac2eb8a0a28034da0a4bba55951e3d38',1,'QCurl::setCaPath()'],['../classQCurlRequest.html#a12d66ee53c36e9a2b95f8cdac391516c',1,'QCurlRequest::setCaPath()']]],
   ['setflowlocation',['setFlowLocation',['../classQCurl.html#a6acc5ba512e6cc048cdf94b1bd8fe6bd',1,'QCurl::setFlowLocation()'],['../classQCurlRequest.html#a613dfa19acfc5044ffa9de0ad64f14b3',1,'QCurlRequest::setFlowLocation()']]],
   ['setheader',['setHeader',['../classQCurlRequest.html#a266a522ef5ddf0eeb7fd5449b1c5d7ca',1,'QCurlRequest']]],
   ['setheaders',['setHeaders',['../classQCurl.html#ab864f96dfee580f3ad81867b38cfa070',1,'QCurl::setHeaders()'],['../classQCurlRequest.html#ad461a1c27d7e33ceb8b8e89dee56e8d7',1,'QCurlRequest::setHeaders()']]],
