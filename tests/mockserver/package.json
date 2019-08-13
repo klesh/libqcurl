@@ -13,6 +13,7 @@
   "scripts": {
     "http": "node index.js",
     "ftp": "ftp-srv ftp://127.0.0.1:7881 --root ./ftp --username ftpuser --password ftppass",
-    "ssh": "docker run -it --rm --name mock-sshd -p 7882:22 mock-sshd"
+    "ssh": "docker run -it --rm --name mock-sshd -p 7882:22 mock-sshd",
+    "proxy": "docker run --rm --name socks5 -p 7884:1080 -e PROXY_USER=puser -e PROXY_PASSWORD=ppass serjs/go-socks5-proxy"
   }
 }

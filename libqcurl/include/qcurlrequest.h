@@ -77,6 +77,9 @@ public:
     //! Set downloading range
     void setRange(QString range);
 
+    //! Set CA path
+    void setCaPath(const QString &path);
+
     //! Perform request
     /*!
      * \brief perform

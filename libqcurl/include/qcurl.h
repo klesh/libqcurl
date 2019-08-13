@@ -1,4 +1,4 @@
-#ifndef QCURL_H
+﻿#ifndef QCURL_H
 #define QCURL_H
 
 #include "qcurlbase.h"
@@ -59,6 +59,9 @@ public:
 
     //! Whether flow redirection
     void setFlowLocation(bool flowLocation);
+
+    //! Set CA path
+    void setCaPath(const QString &path);
 
     //! Return a QCurlRequest instance, so you can customize some setting before you actually perform it.
     /*!

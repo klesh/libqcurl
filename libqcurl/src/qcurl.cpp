@@ -47,6 +47,11 @@ void QCurl::setFlowLocation(bool flowLocation)
     d->flowLocation = flowLocation;
 }
 
+void QCurl::setCaPath(const QString &path)
+{
+    d->caPath = path;
+}
+
 QCurlRequest QCurl::request(const QCurlHeaders &headers)
 {
     QCurlRequest req(*d);

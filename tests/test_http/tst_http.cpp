@@ -14,6 +14,7 @@ public:
 
 private slots:
     void testSimpleGet();
+    void testProxy();
     void testHttps();
     void testNotfound();
     void testPost();
@@ -38,6 +39,17 @@ void Http::testSimpleGet()
     auto res = QCurl::get(QUrl("http://localhost:7880"));
     QCOMPARE(res.statusCode(), 200);
     QCOMPARE(res.responseText(), "hello world");
+}
+
+
+void Http::testProxy()
+{
+    QCurl curl(QUrl("http://example.com"));
+    curl.setVerbose(true);
+    curl.setProxyUrl(QUrl("socks5://puser:ppass@localhost:7884"));
+    auto res = curl.get();
+    QCOMPARE(res.statusCode(), 200);
+    QVERIFY(res.responseText().isEmpty() == false);
 }
 
 void Http::testHttps()

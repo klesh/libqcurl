@@ -38,19 +38,79 @@ void freeCallback(void *arg)
     dev->close();
 }
 
+static int debug(CURL *, curl_infotype type, char *data, size_t size, void *)
+{
+    const char *text;
+
+    switch (type) {
+    case CURLINFO_TEXT:
+        qDebug() << "== Info: " << data;
+        return 0;
+
+    case CURLINFO_HEADER_OUT:
+        text = "=> Send header";
+        break;
+    case CURLINFO_DATA_OUT:
+        text = "=> Send data";
+        break;
+    case CURLINFO_SSL_DATA_OUT:
+        text = "=> Send SSL data";
+        break;
+    case CURLINFO_HEADER_IN:
+        text = "<= Recv header";
+        break;
+    case CURLINFO_DATA_IN:
+        text = "<= Recv data";
+        break;
+    case CURLINFO_SSL_DATA_IN:
+        text = "<= Recv SSL data";
+        break;
+    default:
+        return 0;
+    }
+
+    size_t i;
+    size_t c;
+    unsigned int width=0x10;
+
+    qDebug() << text << size;
+
+    for(i=0; i<size; i+= width) {
+        auto line = qDebug().noquote();
+        line  << i << ": ";
+
+        /* show hex to the left */
+        for(c = 0; c < width; c++) {
+            if(i + c < size)
+                line << QString::number(data[i + c], 16).rightJustified(2, '0');
+            else
+                line << "   ";
+        }
+
+        /* show ptr on the right */
+        for(c = 0; (c < width) && (i+c < size); c++) {
+            char x = data[i + c];
+            if (x <= 0x20) x = '.';
+            line << x;
+        }
+    }
+    return 0;
+}
+
 QCurlRequest::QCurlRequest(QCurlData &data)
     : d(new QCurlRequestData(data))
 {
     assert(d->session.counter++ == 0);
+    curl_easy_reset(data.curl);
     if (!data.userAgent.isEmpty()) setUserAgent(data.userAgent);
     if (!data.proxyUrl.isEmpty()) setProxyUrl(data.proxyUrl);
     if (!data.privateKeyPath.isEmpty()) setPrivateKeyPath(data.privateKeyPath);
     if (!data.publicKeyPath.isEmpty()) setPublicKeyPath(data.publicKeyPath);
     if (!data.keyPassword.isEmpty()) setKeyPassword(data.keyPassword);
+    if (!data.caPath.isEmpty()) setCaPath(data.caPath);
     setVerbose(data.verbose);
     setFlowLocation(data.flowLocation);
     d->performed = false;
-    curl_easy_reset(data.curl);
 }
 
 void QCurlRequest::setHeader(const QString &name, const QString &value)
@@ -100,6 +160,7 @@ void QCurlRequest::setKeyPassword(const QString &keyPassword)
 void QCurlRequest::setVerbose(bool verbose)
 {
     curl_easy_setopt(d->session.curl, CURLOPT_VERBOSE, verbose);
+    curl_easy_setopt(d->session.curl, CURLOPT_DEBUGFUNCTION, debug);
 }
 
 void QCurlRequest::setBody(const QCurlBytes &bytes)
@@ -174,6 +235,11 @@ void QCurlRequest::setBody(QIODevice &stream)
 void QCurlRequest::setRange(QString range)
 {
     curl_easy_setopt(d->session.curl, CURLOPT_RANGE, encode(range));
+}
+
+void QCurlRequest::setCaPath(const QString &path)
+{
+    curl_easy_setopt(d->session.curl, CURLOPT_CAPATH, encode(path));
 }
 
 void QCurlRequest::setNoBody(bool nobody)
