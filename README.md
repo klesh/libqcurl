@@ -3,6 +3,17 @@
 
 `QNetworkAccessManager` can not be used in a `QThread` by design, that is where `qcurl` comes in handy. You can use do Network Access in a intuitive way.
 
+# Installation
+
+## Linux
+```
+$ git clone https://github.com/klesh/libqcurl.git
+$ cd libqcurl
+$ make builds && cd builds
+$ qmake && make && sudo make install
+$ pkg-config --libs libqcurl
+```
+
 # Usage
 
 ## Simple cases
@@ -146,3 +157,4 @@ int main() {
 					|_ bin
 ```
 8. Build and run `libqcurl` with `Qt Creator`
+
