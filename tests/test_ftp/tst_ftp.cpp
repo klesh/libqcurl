@@ -37,8 +37,12 @@ void Ftp::testSimpleGet()
 void Ftp::testExists()
 {
     QCurl curl(QUrl("ftp://ftpuser:ftppass@localhost:7881/"));
-    QCOMPARE(curl.exists("hello.txt"), 1);
-    QCOMPARE(curl.exists("notfound.txt"), 0);
+    int helloExists, notfoundExists;
+    curl.exists(helloExists, "hello.txt");
+    auto res = curl.exists(notfoundExists, "notfound.txt");
+    QCOMPARE(helloExists, 1);
+    QCOMPARE(notfoundExists, 0);
+    QVERIFY(!res.message().isEmpty());
 }
 
 void Ftp::testPutAndDelete()
@@ -60,7 +64,9 @@ void Ftp::testPutAndDelete()
 
     auto delRes = curl.dele("foobar.txt");
 
-    QCOMPARE(curl.exists("foobar.txt"), 0);
+    int foobarExists;
+    curl.exists(foobarExists, "foobar.txt");
+    QCOMPARE(foobarExists, 0);
 }
 
 

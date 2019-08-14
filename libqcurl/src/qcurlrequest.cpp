@@ -286,20 +286,26 @@ QCurlResponse QCurlRequest::perform(const QString &method, const QString &path, 
     return res;
 }
 
-int QCurlRequest::exists(const QString &path)
+QCurlResponse QCurlRequest::exists(int &result, const QString &path)
 {
-    if (d->session.baseUrl.scheme().startsWith("http")) {
-        return this->perform("HEAD", path).statusCode() != 404;
-    }
-    int code = -1;
-    if (d->session.baseUrl.scheme().startsWith("ftp")) {
+    result = -1;
+    if (d->session.baseUrl.scheme().startsWith("ftp") ) {
         this->setRange("0-0");
-        code = this->perform("GET", path).code();
+        auto res = this->perform("GET", path);
+        if (res.code() == CURLE_OK) {
+            result = 1;
+        } else if(res.code() == CURLE_FTP_COULDNT_RETR_FILE || res.code() == CURLE_REMOTE_FILE_NOT_FOUND) {
+            result = 0;
+        }
+        return res;
     }
-    if (d->session.baseUrl.scheme() == "sftp") {
-        code = this->perform("HEAD", path).code();
+    auto res = this->perform("HEAD", path);
+    if (res.code() == CURLE_OK) {
+        result = 1;
+    } else if (res.code() == CURLE_FTP_COULDNT_RETR_FILE
+               || res.code() == CURLE_REMOTE_FILE_NOT_FOUND
+               || res.statusCode() == 404) {
+        result = 0;
     }
-    if (code == CURLE_OK) return 1;
-    if (code == CURLE_FTP_COULDNT_RETR_FILE || code == CURLE_REMOTE_FILE_NOT_FOUND) return 0;
-    return -1;
+    return res;
 }

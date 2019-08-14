@@ -86,10 +86,10 @@ QCurlResponse QCurl::head(const QString &path, const QMap<QString, QString> &hea
     return req.perform("HEAD", path);
 }
 
-int QCurl::exists(const QString &path)
+QCurlResponse QCurl::exists(int &result, const QString &path)
 {
     QCurlRequest req = request();
-    return req.exists(path);
+    return req.exists(result, path);
 }
 
 
@@ -186,10 +186,10 @@ QCurlResponse QCurl::head(const QUrl &url, const QMap<QString, QString> &headers
     return curl.head(headers);
 }
 
-int QCurl::exists(const QUrl &url)
+QCurlResponse QCurl::exists(int &result, const QUrl &url)
 {
     QCurl curl(url);
-    return curl.exists();
+    return curl.exists(result);
 }
 
 

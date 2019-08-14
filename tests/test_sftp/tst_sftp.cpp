@@ -48,27 +48,35 @@ void Sftp::testPrivateKeySimpleGet()
 
 void Sftp::testExists()
 {
-//    QCurl curl(QUrl("sftp://sftpuser:sftppass@localhost:7882/"));
-//    QCOMPARE(curl.exists("/home/sftpuser/foobar.txt"), 1);
-//    QCOMPARE(curl.exists("/home/sftpuser/notfound.txt"), 0);
-    QCurl curl(QUrl("sftp://ftpuser:ftppass@localhost:2222/"));
-    curl.setVerbose(true);
-    QCOMPARE(curl.exists("/home/ftpuser/hello.txt"), 1);
-    QCOMPARE(curl.exists("/home/ftpuser/notfound.txt"), 0);
+    QCurl curl(QUrl("sftp://sftpuser:sftppass@localhost:7882/"));
+    int foobarExists, notfoundExists;
+    curl.exists(foobarExists, "/home/sftpuser/foobar.txt");
+    curl.exists(notfoundExists, "/home/sftpuser/notfound.txt");
+    QCOMPARE(foobarExists, 1);
+    QCOMPARE(notfoundExists, 0);
+
+//    QCurl curl(QUrl("sftp://sftpuser:sftppass@localhost:2222/"));
+//    curl.setVerbose(true);
+//    int helloExists, notfoundExists;
+//    auto res = curl.exists(helloExists, "/home/sftpuser/hello.txt");
+//    qDebug() << res.code() << res.message();
+//    QCOMPARE(helloExists, 1);
+//    curl.exists(notfoundExists, "/home/ftpuser/notfound.txt");
+//    QCOMPARE(notfoundExists, 0);
 
 
-    QByteArray bytes = QString("this is a test").toUtf8();
-    QBuffer buffer(&bytes);
-    QFile file("C:/Users/Klesh Wong/Desktop/ImageSets/rotd/diamondskull.bmp");
-    auto putRes = curl.put("/home/ftpuser/hello.txt", file);
-    QCOMPARE(putRes.code(), 0);
+//    QByteArray bytes = QString("this is a test").toUtf8();
+//    QBuffer buffer(&bytes);
+//    QFile file("C:/Users/Klesh Wong/Desktop/ImageSets/rotd/diamondskull.bmp");
+//    auto putRes = curl.put("/home/ftpuser/hello.txt", file);
+//    QCOMPARE(putRes.code(), 0);
 
-    auto getRes = curl.get("/home/sftpuser/hello.txt");
-    QCOMPARE(getRes.responseText(), "this is a test");
+//    auto getRes = curl.get("/home/sftpuser/hello.txt");
+//    QCOMPARE(getRes.responseText(), "this is a test");
 
-    auto delRes = curl.dele("/home/sftpuser/hello.txt");
+//    auto delRes = curl.dele("/home/sftpuser/hello.txt");
 
-    QCOMPARE(curl.exists("foobar.txt"), 0);
+//    QCOMPARE(curl.exists("foobar.txt"), 0);
 }
 
 void Sftp::testPutAndDelete()
@@ -84,7 +92,9 @@ void Sftp::testPutAndDelete()
 
     auto delRes = curl.dele("/home/sftpuser/hello.txt");
 
-    QCOMPARE(curl.exists("foobar.txt"), 0);
+    int foobarExists;
+    curl.exists(foobarExists, "foobar.txt");
+    QCOMPARE(foobarExists, 0);
 }
 
 

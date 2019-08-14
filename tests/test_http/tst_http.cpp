@@ -145,8 +145,11 @@ void Http::testQVariant()
 
 void Http::testExists()
 {
-    QCOMPARE(QCurl::exists(QUrl("http://localhost:7880/echo")), 1);
-    QCOMPARE(QCurl::exists(QUrl("http://localhost:7880/notfound")), 0);
+    int echoExists, notfoundExists;
+    QCurl::exists(echoExists, QUrl("http://localhost:7880/echo"));
+    QCurl::exists(notfoundExists, QUrl("http://localhost:7880/notfound"));
+    QCOMPARE(echoExists, 1);
+    QCOMPARE(notfoundExists, 0);
 }
 
 void Http::testDownload()

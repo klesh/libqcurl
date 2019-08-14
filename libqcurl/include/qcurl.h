@@ -113,10 +113,11 @@ public:
 
     //! Check if remote resource exists or not, support http/ftp/sftp
     /*!
+     * \param result 1:  yes, 0: no, -1: error
      * \param path relative to baseUrl
      * \return bool
      */
-    int exists(const QString &path = QString());
+    QCurlResponse exists(int &result, const QString &path = QString());
 
     //! Perform a POST request with a RAW request body
     /*!
@@ -254,7 +255,7 @@ public:
     //! Perform a simple HEAD request without session
     static QCurlResponse head(const QUrl &url, const QCurlHeaders &headers = QCurlHeadersEmpty);
     //! Perform a simple existence checking without session
-    static int exists(const QUrl &url);
+    static QCurlResponse exists(int &result, const QUrl &url);
 
     static QCurlResponse post(const QUrl &url, const QCurlBytes &bytes, const QCurlHeaders &headers = QCurlHeadersEmpty);
     static QCurlResponse post(const QUrl &url, const QCurlForm &form, const QCurlHeaders &headers = QCurlHeadersEmpty);

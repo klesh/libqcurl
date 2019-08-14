@@ -93,10 +93,11 @@ public:
 
     //! Check if remote resource exists or not, support http/ftp/sftp
     /*!
+     * \param result 1:  yes, 0: no, -1: error
      * \param path relative to baseUrl
      * \return bool
      */
-    int exists(const QString &path = QString());
+    QCurlResponse exists(int &result, const QString &path = QString());
 };
 
 #endif // QCURLREQUEST_H

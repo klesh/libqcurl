@@ -43,12 +43,15 @@ QCurlResponse::QCurlResponse(QCurlRequestData &data, const QUrl &url, QIODevice 
 
     curl_easy_setopt(d->request.session.curl, CURLOPT_WRITEDATA, d->body);
 
-    d->code = curl_easy_perform(d->request.session.curl);
+    auto code = curl_easy_perform(d->request.session.curl);
     d->body->seek(0);
 
-    if (d->code == CURLE_OK) {
+    if (code == CURLE_OK) {
         curl_easy_getinfo(d->request.session.curl, CURLINFO_RESPONSE_CODE, &d->statusCode);
+    } else {
+        d->message = QString(curl_easy_strerror(code));
     }
+    d->code = code;
 }
 
 QCurlResponse::QCurlResponse(const QCurlResponse &other) : QObject(), d(other.d)
