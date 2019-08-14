@@ -65,6 +65,7 @@ win32 {
 unix {
     LIBS += -lcurl
 
+
     headers.path = /usr/include
     headers.files = $$PWD/include/*.h
     INSTALLS += headers
