@@ -42,7 +42,6 @@ SOURCES += \
 include(../config.pri)
 
 DESTDIR = $$QCURL_DESTDIR
-OUT_PWD = $$QCURL_OUT_PWD
 
 win32 {
     INCLUDEPATH += $$DEPSDIR/include
@@ -54,13 +53,24 @@ win32 {
         LIBS += -llibcurl.dll
     }
 
-    inc.path = $$DESTDIR/include
-    inc.files = $$PWD/include/*.h
-    INSTALLS += inc
-
-    bin.path = $$DESTDIR/
+    bin.path = $$DESTDIR
     bin.files = $$DEPSDIR/bin/*.dll
     INSTALLS += bin
+
+    distinc.path = $$DISTDIR/include
+    distinc.files = $$PWD/include/*.h
+    INSTALLS += distinc
+
+    distbin.path = $$DISTDIR/bin
+    distbin.files = $$DEPSDIR/bin/*.dll
+    INSTALLS += distbin
+
+    distlib.path = $$DISTDIR/lib
+    distlib.files = $$DESTDIR/*.a
+    INSTALLS += distlib
+
+    dlltarget.path = $$DISTDIR/bin
+    INSTALLS += dlltarget
 }
 
 unix {

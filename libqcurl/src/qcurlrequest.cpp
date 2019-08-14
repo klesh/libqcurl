@@ -291,13 +291,15 @@ int QCurlRequest::exists(const QString &path)
     if (d->session.baseUrl.scheme().startsWith("http")) {
         return this->perform("HEAD", path).statusCode() != 404;
     }
+    int code = -1;
     if (d->session.baseUrl.scheme().startsWith("ftp")) {
         this->setRange("0-0");
-        auto code = this->perform("GET", path).code();
-        return code != CURLE_FTP_COULDNT_RETR_FILE && code != CURLE_REMOTE_FILE_NOT_FOUND;
+        code = this->perform("GET", path).code();
     }
     if (d->session.baseUrl.scheme() == "sftp") {
-        return this->perform("HEAD", path).code() != CURLE_REMOTE_FILE_NOT_FOUND;
+        code = this->perform("HEAD", path).code();
     }
+    if (code == CURLE_OK) return 1;
+    if (code == CURLE_FTP_COULDNT_RETR_FILE || code == CURLE_REMOTE_FILE_NOT_FOUND) return 0;
     return -1;
 }
