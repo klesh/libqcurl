@@ -80,6 +80,9 @@ public:
     //! Set CA path
     void setCaPath(const QString &path);
 
+    //! Set timeout
+    void setTimeout(long seconds);
+
     //! Perform request
     /*!
      * \brief perform

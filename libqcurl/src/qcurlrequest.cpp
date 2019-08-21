@@ -108,6 +108,7 @@ QCurlRequest::QCurlRequest(QCurlData &data)
     if (!data.publicKeyPath.isEmpty()) setPublicKeyPath(data.publicKeyPath);
     if (!data.keyPassword.isEmpty()) setKeyPassword(data.keyPassword);
     if (!data.caPath.isEmpty()) setCaPath(data.caPath);
+    if (data.timeout) setTimeout(data.timeout);
     setVerbose(data.verbose);
     setFlowLocation(data.flowLocation);
     d->performed = false;
@@ -242,6 +243,11 @@ void QCurlRequest::setCaPath(const QString &path)
     curl_easy_setopt(d->session.curl, CURLOPT_CAPATH, encode(path));
 }
 
+void QCurlRequest::setTimeout(long seconds)
+{
+    curl_easy_setopt(d->session.curl, CURLOPT_TIMEOUT, seconds);
+}
+
 void QCurlRequest::setNoBody(bool nobody)
 {
     curl_easy_setopt(d->session.curl, CURLOPT_NOBODY, nobody);
@@ -280,6 +286,9 @@ QCurlResponse QCurlRequest::perform(const QString &method, const QString &path, 
     }
     if (d->headers) curl_easy_setopt(d->session.curl, CURLOPT_HTTPHEADER, d->headers);
     curl_easy_setopt(d->session.curl, CURLOPT_URL, encode(finalUrl.toString()));
+    if (finalUrl.scheme().endsWith("ftp")) {
+        curl_easy_setopt(d->session.curl, CURLOPT_FTP_CREATE_MISSING_DIRS, CURLFTP_CREATE_DIR_RETRY);
+    }
     QCurlResponse res(*d, finalUrl, responseBody);
     d->session.counter--;
 

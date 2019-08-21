@@ -28,6 +28,7 @@ struct QCurlData: public QSharedData
     bool flowLocation = true;
     const QUrl baseUrl;
     QString caPath;
+    long timeout = 0;
     int counter = 0; // make sure only one request at a time
 
     QCurlData(const QUrl &baseUrl);

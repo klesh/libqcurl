@@ -17,6 +17,7 @@ private slots:
     void testExists();
     void testPutAndDelete();
     void testPrivateKeySimpleGet();
+    void testMkdirP();
 };
 
 Sftp::Sftp()
@@ -39,11 +40,24 @@ void Sftp::testPrivateKeySimpleGet()
 {
     QCurl curl(QUrl("sftp://sftpkey@localhost:7882/home/sftpkey/hello.txt"));
     curl.setVerbose(true);
-    curl.setSshKeyFiles(ID_RSA_PATH, ID_RSA_PUB_PATH, "pass");
+    curl.setPrivateKeyPath(ID_RSA_PATH);
+    curl.setPublicKeyPath(ID_RSA_PUB_PATH);
+    curl.setKeyPassword("pass");
     qDebug() << ID_RSA_PATH << ID_RSA_PUB_PATH;
     auto res = curl.get();
     qDebug() << "res" << res.code();
     QCOMPARE(res.responseText().trimmed(), "hello world");
+}
+
+void Sftp::testMkdirP()
+{
+    QCurl curl(QUrl("sftp://sftpuser:sftppass@localhost:7882/"));
+    QByteArray bytes = QString("this is a test").toUtf8();
+    QBuffer buffer(&bytes);
+    auto putRes = curl.put("/home/sftpuser/somefolder/hello.txt", buffer);
+    QCOMPARE(putRes.code(), 0);
+    auto getRes = curl.get("/home/sftpuser/somefolder/hello.txt");
+    QCOMPARE(getRes.responseText(), "this is a test");
 }
 
 void Sftp::testExists()

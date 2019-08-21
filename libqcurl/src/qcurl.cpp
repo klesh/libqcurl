@@ -30,10 +30,18 @@ void QCurl::setProxyUrl(const QUrl &proxyUrl)
     d->proxyUrl = proxyUrl;
 }
 
-void QCurl::setSshKeyFiles(const QString &privateKeyPath, const QString &publicKeyPath, const QString &keyPassword)
+void QCurl::setPrivateKeyPath(const QString &privateKeyPath)
 {
     d->privateKeyPath = privateKeyPath;
+}
+
+void QCurl::setPublicKeyPath(const QString &publicKeyPath)
+{
     d->publicKeyPath = publicKeyPath;
+}
+
+void QCurl::setKeyPassword(const QString &keyPassword)
+{
     d->keyPassword = keyPassword;
 }
 
@@ -50,6 +58,11 @@ void QCurl::setFlowLocation(bool flowLocation)
 void QCurl::setCaPath(const QString &path)
 {
     d->caPath = path;
+}
+
+void QCurl::setTimeout(long seconds)
+{
+    d->timeout = seconds;
 }
 
 QCurlRequest QCurl::request(const QCurlHeaders &headers)

@@ -45,14 +45,14 @@ public:
      */
     void setProxyUrl(const QUrl &proxyUrl);
 
-    //! Setup SSH keys for SFTP
-    /*!
-     * \brief setSshKeyFiles
-     * \param privateKeyPath required
-     * \param publicKeyPath optional, could speed up connecting time a little bit
-     * \param keyPassword if your private key needs a password
-     */
-    void setSshKeyFiles(const QString &privateKeyPath, const QString &publicKeyPath = QString(), const QString &keyPassword = QString());
+    //! Set private key file path
+    void setPrivateKeyPath(const QString &privateKeyPath);
+
+    //! Set public key file path
+    void setPublicKeyPath(const QString &publicKeyPath);
+
+    //! Set private key password
+    void setKeyPassword(const QString &keyPassword);
 
     //! Turn on/off curl's verbose mode
     void setVerbose(bool verbose);
@@ -62,6 +62,9 @@ public:
 
     //! Set CA path
     void setCaPath(const QString &path);
+
+    //! Set timeout
+    void setTimeout(long seconds);
 
     //! Return a QCurlRequest instance, so you can customize some setting before you actually perform it.
     /*!
