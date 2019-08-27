@@ -109,6 +109,7 @@ QCurlRequest::QCurlRequest(QCurlData &data)
     if (!data.keyPassword.isEmpty()) setKeyPassword(data.keyPassword);
     if (!data.caPath.isEmpty()) setCaPath(data.caPath);
     if (data.timeout) setTimeout(data.timeout);
+    setHeaders(data.headers);
     setVerbose(data.verbose);
     setFlowLocation(data.flowLocation);
     d->performed = false;
@@ -121,7 +122,7 @@ void QCurlRequest::setHeader(const QString &name, const QString &value)
 
 void QCurlRequest::setHeaders(const QMap<QString, QString> &headers)
 {
-    for (const auto &headerName : headers) {
+    for (const auto &headerName : headers.keys()) {
         setHeader(headerName, headers[headerName]);
     }
 }
@@ -203,6 +204,8 @@ void QCurlRequest::setBody(QCurlMultipart &parts)
             auto dev = value.value<QIODevice*>();
             if (dev->isOpen() == false) {
                 dev->open(QIODevice::ReadOnly);
+            } else {
+                dev->seek(0);
             }
             curl_mime_data_cb(part, dev->size(), readCallback, seekCallback, freeCallback, dev);
             if (value.canConvert<QFileDevice*>()) {
@@ -284,7 +287,11 @@ QCurlResponse QCurlRequest::perform(const QString &method, const QString &path, 
             }
         }
     }
-    if (d->headers) curl_easy_setopt(d->session.curl, CURLOPT_HTTPHEADER, d->headers);
+    if (d->headers) {
+        curl_easy_setopt(d->session.curl, CURLOPT_HTTPHEADER, d->headers);
+    }
+
+
     curl_easy_setopt(d->session.curl, CURLOPT_URL, encode(finalUrl.toString()));
     if (finalUrl.scheme().endsWith("ftp")) {
         curl_easy_setopt(d->session.curl, CURLOPT_FTP_CREATE_MISSING_DIRS, CURLFTP_CREATE_DIR_RETRY);
@@ -310,7 +317,11 @@ QCurlResponse QCurlRequest::exists(int &result, const QString &path)
     }
     auto res = this->perform("HEAD", path);
     if (res.code() == CURLE_OK) {
-        result = 1;
+        if (d->session.baseUrl.scheme().startsWith("http")) {
+            result = res.statusCode() == 404 ? 0 : 1;
+        } else {
+            result = 1;
+        }
     } else if (res.code() == CURLE_FTP_COULDNT_RETR_FILE
                || res.code() == CURLE_REMOTE_FILE_NOT_FOUND
                || res.statusCode() == 404) {

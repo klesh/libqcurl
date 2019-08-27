@@ -193,7 +193,7 @@ QCurlResponse QCurl::dele(const QUrl &url, const QCurlHeaders &headers)
     return curl.dele(headers);
 }
 
-QCurlResponse QCurl::head(const QUrl &url, const QMap<QString, QString> &headers)
+QCurlResponse QCurl::head(const QUrl &url, const QCurlHeaders &headers)
 {
     QCurl curl(url);
     return curl.head(headers);

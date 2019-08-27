@@ -33,6 +33,9 @@ public:
     //! HTTP STATUS TEXT
     QString status();
 
+    //! Raw response device
+    QIODevice *device();
+
     //! Full response text
     QString responseText();
 

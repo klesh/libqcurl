@@ -4,6 +4,8 @@ QT -= gui
 CONFIG += qt console warn_on depend_includepath testcase
 CONFIG -= app_bundle
 
+DEFINES += TEST_IMG_PATH=\\\"$$PWD/1027.png\\\" \
+
 TEMPLATE = app
 
 SOURCES +=  \

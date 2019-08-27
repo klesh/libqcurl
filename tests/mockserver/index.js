@@ -33,6 +33,10 @@ app.all('/echo', bodyParser.text({type: '*/*'}), log, (req, res) => {
   res.send(req.body);
 });
 
+app.all('/echo-header/:header', log, (req, res) => {
+  res.send(req.headers[req.params.header]);
+});
+
 app.all('/method', log, (req, res) => {
   res.send(req.method);
 });
@@ -47,6 +51,10 @@ app.post('/json', bodyParser.json(), log, (req, res) => {
 
 app.post('/parts', upload.single('file'), log, (req, res) => {
   res.send(`${req.body.filename}\n${req.file && req.file.buffer.toString()}`);
+});
+
+app.post('/upload', upload.single('file'), log, (req, res) => {
+  res.send(req.file.buffer);
 });
 
 app.post('/raw', bodyParser.raw({type: '*/*'}), log, (req, res) => {

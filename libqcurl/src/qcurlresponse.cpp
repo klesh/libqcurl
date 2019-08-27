@@ -43,6 +43,7 @@ QCurlResponse::QCurlResponse(QCurlRequestData &data, const QUrl &url, QIODevice 
 
     curl_easy_setopt(d->request.session.curl, CURLOPT_WRITEDATA, d->body);
 
+
     auto code = curl_easy_perform(d->request.session.curl);
     d->body->seek(0);
 
@@ -82,6 +83,11 @@ long QCurlResponse::statusCode()
 QString QCurlResponse::status()
 {
     return d->status;
+}
+
+QIODevice *QCurlResponse::device()
+{
+    return d->body;
 }
 
 

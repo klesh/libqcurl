@@ -22,6 +22,8 @@ private slots:
     void testQVariant();
     void testExists();
     void testDownload();
+    void testHeaders();
+    void testUploadFile();
 };
 
 Http::Http()
@@ -99,20 +101,28 @@ void Http::testPost()
     QCurlMultipart parts;
     parts.append({"filename", "plaintextfile.txt"});
 
-    QByteArray bytes = QString("hello world").toUtf8();
+    const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+    const int randomStringLength = 1024 * 23; // assuming you want random strings of 12 characters
+
+    QString randomString;
+    for(int i=0; i<randomStringLength; ++i)
+    {
+        int index = qrand() % possibleCharacters.length();
+        QChar nextChar = possibleCharacters.at(index);
+        randomString.append(nextChar);
+    }
+    QByteArray bytes = randomString.toUtf8();
     QBuffer buffer(&bytes);
     buffer.setProperty("filename", "plaintextfile.txt");
     parts.append({"file", QVariant::fromValue(&buffer)});
     auto res5 = QCurl::post(QUrl("http://localhost:7880/parts"), parts);
     QCOMPARE(res5.statusCode(), 200);
-    QCOMPARE(res5.responseText(), "plaintextfile.txt\nhello world");
+    QCOMPARE(res5.responseText(), "plaintextfile.txt\n"+randomString);
 
     QBuffer buffer2(&bytes);
     auto res6 = QCurl::post(QUrl("http://localhost:7880/raw"), buffer2);
     QCOMPARE(res6.statusCode(), 200);
-    QCOMPARE(res6.responseText(), "hello world");
-
-
+    QCOMPARE(res6.responseText(), randomString);
 }
 
 void Http::testPutAndDelete()
@@ -160,6 +170,36 @@ void Http::testDownload()
     auto res = req.perform("GET", "", &file);
     file.seek(0);
     QCOMPARE(file.readAll(), "hello world");
+}
+
+void Http::testHeaders()
+{
+    QCurl curl(QUrl("http://localhost:7880/"));
+    curl.setHeaders({{"auth", "haha"}});
+    curl.setVerbose(true);
+    auto res = curl.get("echo-header/auth");
+    QCOMPARE(res.responseText(), "haha");
+}
+
+void Http::testUploadFile()
+{
+    QByteArray bytes1 = "abcd";
+    QByteArray bytes2;
+    bytes2.append("ab");
+    bytes2.append("cd");
+    QCOMPARE(bytes1, bytes2);
+
+    QCurlMultipart parts;
+    QFile img(TEST_IMG_PATH);
+    parts.append({"file", QVariant::fromValue(&img)});
+    QCurl curl(QUrl("http://localhost:7880/upload"));
+//    curl.setVerbose(true);
+    auto res = curl.post(parts);
+    QFile img2(TEST_IMG_PATH);
+    img2.open(QIODevice::ReadOnly);
+    auto imgAll = img2.readAll();
+    QVERIFY(imgAll.size());
+    QCOMPARE(imgAll, res.device()->readAll());
 }
 
 QTEST_APPLESS_MAIN(Http)
