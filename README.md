@@ -9,8 +9,8 @@
 ```
 $ git clone https://github.com/klesh/libqcurl.git
 $ cd libqcurl
-$ make builds && cd builds
-$ qmake && make && sudo make install
+& mkdir builds && cd builds
+$ qmake .. && make && sudo make install
 $ pkg-config --libs libqcurl
 ```
 

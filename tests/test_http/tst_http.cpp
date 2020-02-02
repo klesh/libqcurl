@@ -79,7 +79,7 @@ void Http::testPost()
 
     // post ordinary form
     QCurlForm form;
-    form.append({"hello", "world"});
+    form.append(QPair<QString, QString>({"hello", "world"}));
     auto res3 = QCurl::post(QUrl("http://localhost:7880/form"), form);
     QCOMPARE(res3.responseText(), "world");
 
@@ -99,7 +99,7 @@ void Http::testPost()
 
     // upload file by multipart
     QCurlMultipart parts;
-    parts.append({"filename", "plaintextfile.txt"});
+    parts.append(QPair<QString, QString>({"filename", "plaintextfile.txt"}));
 
     const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
     const int randomStringLength = 1024 * 23; // assuming you want random strings of 12 characters
