@@ -146,15 +146,15 @@ int main() {
     |_test
     |
     |_deps
-			|_selfbuild
-				|_i386
-					|_ lib
-					|_ include
-					|_ bin
-				|_x86_64
-					|_ lib
-					|_ include
-					|_ bin
+      |_selfbuild
+        |_i386
+          |_ lib
+          |_ include
+          |_ bin
+        |_x86_64
+          |_ lib
+          |_ include
+          |_ bin
 ```
 8. Build and run `libqcurl` with `Qt Creator`
 
